@@ -1,70 +1,28 @@
-# Getting Started with Create React App
+# Directory Structure and Uses
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Client
 
-## Available Scripts
+### public
+This folder will contain any images we want to include in our UI, along with the index.html file.
 
-In the project directory, you can run:
+### src
+App.js will be the parent container of all other containers. This is basically what will control what goes where in our UI.
 
-### `npm start`
+This folder will contain all the js files for our front end. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Server
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### server.js
+This file is what runs when we start our server. It calls conn.js to initialize the connection to the database (running "node server.js" will start the server).
 
-### `npm test`
+### db
+This folder contains one file – conn.js – which basically initializes the connection between the mongoDB and the server.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### routes
+This folder will contain any Server API Endpoints. Basically, this is where we interact with the database, using Express.js. There are sample endpoints in record.js which are just examples of what an API endpoint might look like.
 
-### `npm run build`
+### config.env
+This file is where we set which port we run the server on. Additionally, we provide the URI for the connection to the Mongo database which requires your username and password.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# Running on local machine
+Because the node_modules folder is extremely large, it is not on the repository. Therefore, when cloning the repository onto your local machine, go to the server directory and run "npm i" to get this folder. Do the same in the client repository.
