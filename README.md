@@ -1,6 +1,7 @@
 # Quaggas - Directory Structure and Uses
 
 ## Client
+run "npm i bcryptjs"
 
 ### public
 This folder will contain any images we want to include in our UI, along with the index.html file.
