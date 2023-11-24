@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router-dom";
+import './Register.css';
 const bcrypt = require('bcryptjs');
 const saltRounds=10;
 export default function Create() {
@@ -40,37 +41,43 @@ export default function Create() {
     }
     // This following section will display the form that takes the input from the user.
     return (
-        <div>
-            <h3>Register User</h3>
-            <form onSubmit={onSubmit}>
-                <div className="form-group">
-                    <label htmlFor="user_id">User ID</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="user_id"
-                        value={form.user_id}
-                        onChange={(e) => updateForm({ user_id: e.target.value })}
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="hashedpswd">PassWord</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="hashedpswd"
-                        value={form.hashedpswd}
-                        onChange={(e) => updateForm({ hashedpswd: e.target.value })}
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="submit"
-                        value="Create person"
-                        className="btn btn-primary"
-                    />
-                </div>
-            </form>
+        <div className="register-page">
+            <div className="header-content">
+                <img src="/Quaggas.png" alt="Quaggas Logo" className="logo" />
+            </div>
+            <div className="description-content">
+                <p>Join our community to start discussions!</p>
+            </div>
+            <div className="form-wrapper">
+                <form onSubmit={onSubmit}>
+                    <div className="input-container">
+                        <label htmlFor="user_id">Username:</label>
+                        <input
+                            type="text"
+                            id="user_id"
+                            value={form.user_id}
+                            onChange={(e) => updateForm({ user_id: e.target.value })}
+                        />
+                    </div>
+                    <div className="input-container">
+                        <label htmlFor="hashedpswd">Password:</label>
+                        <input
+                            type="password"
+                            id="hashedpswd"
+                            value={form.hashedpswd}
+                            onChange={(e) => updateForm({ hashedpswd: e.target.value })}
+                        />
+                    </div>
+                    <div className="buttons-container">
+                        <button type="submit">
+                            Register
+                        </button>
+                    </div>
+                    <div className="account-link">
+                            <Link to="/">Already have an account?</Link>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }
