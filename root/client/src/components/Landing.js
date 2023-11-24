@@ -26,7 +26,7 @@ const LandingPage = () => {
                 </form>
                 <div className="buttons-container">
                     <button type="submit">Login</button>
-                    <Link to="/create" className="register-link">Register</Link>
+                    <Link to="/register" className="register-link">Register</Link>
                 </div>
             </div>
         </div>
