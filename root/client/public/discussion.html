@@ -45,6 +45,21 @@
             cursor: pointer;
         }
 
+        #cogwheel-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .cogwheel-button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 8px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
         #channel-list {
             list-style: none;
             padding: 0;
@@ -91,6 +106,20 @@
             background-color: #ddd;
             cursor: pointer;
         }
+
+        #menu {
+            position: flex;
+            background-color: #f2f2f2;
+            padding: 10px;
+            border: 1px solid #ddd;
+
+        }
+
+        #menu a {
+            margin-bottom: 10px;
+            cursor: pointer;
+
+        }
     </style>
 </head>
 <body>
@@ -99,6 +128,7 @@
             <button id="back-button" onclick="goBack()">Back</button>
             <br>
             <h1 id="welcome-header"><br><br>Welcome to Discussion</h1>
+
         </div>
 
         <div id="channel-list">
@@ -108,6 +138,19 @@
                 <li onclick="selectChannel('channel2')">Channel 2</li>
                 <!-- To be replaced with List from DB-->
             </ul>
+        </div>
+        <!-- Cogwheel Buttons -->
+        <div id="cogwheel-buttons">
+            <button class="cogwheel-button" onclick="toggleMenu('menu1')">&#9881;</button>
+        </div>
+
+        <!-- Menu for Cogwheel Button -->
+        <div id="menu1" class="menu" style="display: none">
+            <a href="#" onclick="renameChannel()">Rename Channel</a>
+            <a href="#" onclick="addChannel()">Add Channel</a>
+            <a href="#" onclick="deleteChannel()">Delete Channel</a>
+            <a href="#" onclick="addUser()">Add User</a>
+            <a href="#" onclick="removeUser()">Remove User</a>
         </div>
     </aside>
 
@@ -124,7 +167,7 @@
             <li ondblclick="openUserPage('User1')">User 1</li>
             <li ondblclick="openUserPage('User2')">User 2</li>
                 <!-- To be replaced with List from DB-->
-            </ul>
+        </ul>
     </aside>
 
     <script>
@@ -138,6 +181,36 @@
 
         function selectChannel(channelName) {
             alert('Selected Channel: ' + channelName);
+        }
+
+        function toggleMenu(menuId) {
+            var menu = document.getElementById(menuId);
+            if (menu.style.display == 'none') {
+                menu.style.display = 'block'
+            }
+            else {
+                menu.style.display = 'none'
+            }
+        }
+
+        function renameChannel() {
+            alert('Rename Channel');
+        }
+
+        function addChannel() {
+            alert('Add Channel');
+        }
+
+        function deleteChannel() {
+            alert('Delete Channel');
+        }
+
+        function addUser() {
+            alert('Add User');
+        }
+
+        function removeUser() {
+            alert('Remove User');
         }
     </script>
 </body>
