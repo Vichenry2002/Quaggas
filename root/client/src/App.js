@@ -3,8 +3,8 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import LandingPage from "./components/Landing";
 import Register from "./components/Register";
-import Discussions from "./components/DiscussionsPopUp";
-import DashBoard from "./components/DiscussionsDashboard"
+import Discussions from "./components/CreateDiscussion";
+import DashBoard from "./components/Dashboard"
 
 const App = () => {
     return (

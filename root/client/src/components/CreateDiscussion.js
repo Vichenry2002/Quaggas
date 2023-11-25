@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 //import './DiscussionBoardCreate.css'; // Import your CSS file for styling
 
-export default function DiscussionBoard() {
+export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussion }) {
+    //TODO: Replace with actual user ID (from auth context or similar)
+    const userId = "vhenry_test1";
+
     const [form, setForm] = useState({
         title: "",
         users: [],
@@ -24,7 +26,16 @@ export default function DiscussionBoard() {
 
     async function onSubmit(e) {
         e.preventDefault();
-        const newBoard = { ...form };
+        const updatedUsers = [...form.users, userId]; // Append userId to the users array
+        const updatedAdmins = [...form.admins, userId];
+        const defaultChannel = ["main"];
+
+        const newBoard = {
+            ...form,
+            users: updatedUsers,
+            admins: updatedAdmins,
+            channels: defaultChannel
+        };
 
         try {
             // Adding discussion to discussions collection
@@ -40,14 +51,24 @@ export default function DiscussionBoard() {
                 throw new Error('Network response was not ok');
             }
 
+
+
             const discussionData = await response.json();
-            console.log(discussionData);
+
+            const newDiscussion = {
+                id: discussionData.insertedId,
+                title: form.title,
+            };
+
+            addNewDiscussion(newDiscussion);
+            onRequestClose();
+
             const discussionId = discussionData.insertedId; // Assuming the ID is returned in the response
             const discussionTitle = form.title;
-            console.log(discussionId);
+            
+
 
             // Adding discussion to user collection
-            const userId = "vhenry_test1"; // Replace with actual user ID (from auth context or similar)
             await fetch(`http://localhost:8081/user/${userId}/addDiscussion`, {
                 method: "PUT",
                 headers: {

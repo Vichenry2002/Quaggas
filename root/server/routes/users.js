@@ -47,9 +47,26 @@ userRoutes.route("/user/:username/addDiscussion").put(function (req, res) {
 });
 
 
-//Delete discussion
+//remove discussion from user db
+userRoutes.route("/user/:userId/:discussionId/remove").post(async function (req, response) {
+    let db_connect = dbo.getDb();
+    const discussionId = req.params.discussionId;
+    const userId = req.params.userId;
 
-//Update discussion (add users)
+    try {
+        await db_connect.collection("users").updateOne(
+            { name: userId }, 
+            { $pull: { discussions: { discussionId: discussionId } } }
+        );
+
+        response.status(200).json({ message: "User removed from discussion" });
+    } catch (err) {
+        console.error("Error while updating discussion:", err);
+        response.status(500).json({ error: err.message });
+    }
+});
+
+
 
 
 module.exports = userRoutes;
