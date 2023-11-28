@@ -1,5 +1,7 @@
 const express = require("express");
- 
+const bcrypt = require('bcryptjs');
+const CryptoJS= require('crypto-js')
+const secretPass = "WfgHyiosyGH";
 const recordRoutes = express.Router();
  
 const dbo = require("../db/conn");
@@ -28,19 +30,34 @@ recordRoutes.route("/record").get(function (req, res) {
 
  
 //can be used for Auth
-/*
-recordRoutes.route("/record/:id").get(function (req, res) {
- let db_connect = dbo.getDb();
- let myquery = { _id: ObjectId(req.params.id) };
- db_connect
-   .collection("users")
-   .findOne(myquery, function (err, result) {
-     if (err) throw err;
-     res.json(result);
-   });
+
+recordRoutes.route("/record/auth").post(async function (req, response) {
+    let db_connect = dbo.getDb();
+    let myobj = {
+        name: req.body.username,
+    };
+    var ress = await db_connect.collection("users").findOne(
+    myobj)
+    //if password matches-> generate ticket->store ticket with expire time->send ticket over.
+    const isMatch = await bcrypt.compare(req.body.hashedpswd,ress.position);
+    if(isMatch){
+        var now=new Date();
+        let expiryDate2 = new Date(Date.now() + 2 * (60 * 60 * 1000) );
+        console.log(expiryDate2);
+        //var timestamp=Date.prototype.setTime(now.prototype.getTime()+(2*60*60*1000))
+        let ticket =   expiryDate2.toString()+myobj.name;
+        console.log(ticket);
+
+
+        const encryptedData = CryptoJS.AES.encrypt(ticket,secretPass);
+        console.log(encryptedData.toString());
+        response.status(201).json(encryptedData.toString());
+
+    }
+
 });
 
- */
+
 
 
  //using it for registration

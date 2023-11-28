@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import './Register.css';
 const bcrypt = require('bcryptjs');
 const saltRounds=10;
+
 export default function Create() {
     const [form, setForm] = useState({
         user_id: "",
@@ -36,7 +37,8 @@ export default function Create() {
                 return;
             });
         console.log("form not clearing")
-        setForm({ user_id: "", hashedpswd: "" });
+        let frm={user_id: "", hashedpswd:""}
+        updateForm(frm);
         navigate("/");
     }
     // This following section will display the form that takes the input from the user.
