@@ -137,43 +137,37 @@ discussionBoardRoutes.route("discussions/:channelID/:newname/renameChannel").pos
     }
 });
 
-// Get Channel information
+// Get Channel information with Posts
 discussionBoardRoutes.route("/channels/:channelID").get(async function (req, response) {
     let db_connect = dbo.getDb();
     const channelID = req.params.channelID;
 
     try {
-        const result = await db_connect.collection("channels").findOne({ _id: new ObjectId(channelID) });
+        // Fetch channel information
+        const channel = await db_connect.collection("channels").findOne({ _id: new ObjectId(channelID) });
 
-        if (!result) {
+        if (!channel) {
             response.status(404).send("Channel not found");
             return;
         }
+
+        // Fetch posts using the post IDs from the channel
+        const postIDs = channel.posts || []; 
+        const posts = await db_connect.collection("posts").find({ _id: { $in: postIDs.map(postID => new ObjectId(postID)) } }).toArray();
+
+        // Combine channel and post information
+        const result = {
+            channel: channel,
+            posts: posts
+        };
+
         response.json(result);
     } catch (err) {
-        console.error("Error fetching Channel:", err);
+        console.error("Error fetching Channel and Posts:", err);
         response.status(500).send("Internal Server Error");
     }
 });
 
-// Get post information
-discussionBoardRoutes.route("/posts/:postsID").get(async function (req, response) {
-    let db_connect = dbo.getDb();
-    const postsID = req.params.postsID;
-
-    try {
-        const result = await db_connect.collection("posts").findOne({ _id: new ObjectId(postsID) });
-
-        if (!result) {
-            response.status(404).send("Posts not found");
-            return;
-        }
-        response.json(result);
-    } catch (err) {
-        console.error("Error fetching Posts:", err);
-        response.status(500).send("Internal Server Error");
-    }
-});
 
 //To be deleted later, get user from userID
 discussionBoardRoutes.route("/users/:userID").get(async function (req, response) {
