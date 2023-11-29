@@ -50,6 +50,7 @@ recordRoutes.route("/record/add").post(function (req, response) {
  let myobj = {
    name: req.body.user_id,
    position: req.body.hashedpswd,
+   discussions: req.body.discussions,
  };
  db_connect.collection("users").insertOne(myobj, function (err, res) {
    if (err) throw err;
