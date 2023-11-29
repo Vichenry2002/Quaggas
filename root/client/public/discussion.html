@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discussion Board</title>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        section {
+            display: flex;
+            flex: 1;
+        }
+
+        aside {
+            padding: 10px;
+            background-color: #f2f2f2;
+            width: 20%;
+        }
+
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+        }
+
+        #welcome-header {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            margin-top: 10px; 
+        }
+
+        #back-button {
+            padding: 8px;
+            background-color: #555;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #cogwheel-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .cogwheel-button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 8px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        #channel-list {
+            list-style: none;
+            padding: 0;
+            margin-left: 30px; 
+        }
+
+        #channel-list h2 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        #channel-list li {
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        #center-column {
+            flex: 1;
+            padding: 10px;
+            background-color: #e6e6e6;
+        }
+
+        #right-column {
+            padding: 10px;
+            background-color: #f2f2f2;
+            width: 10%;
+        }
+
+        #user-search {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #user-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #user-list li {
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: #ddd;
+            cursor: pointer;
+        }
+
+        #menu {
+            position: flex;
+            background-color: #f2f2f2;
+            padding: 10px;
+            border: 1px solid #ddd;
+
+        }
+
+        #menu a {
+            margin-bottom: 10px;
+            cursor: pointer;
+
+        }
+    </style>
+</head>
+<body>
+    <aside id="left-column">
+        <div id="header">
+            <button id="back-button" onclick="goBack()">Back</button>
+            <br>
+            <h1 id="welcome-header"><br><br>Welcome to Discussion</h1>
+
+        </div>
+
+        <div id="channel-list">
+            <h2>Channels</h2>
+            <ul>
+                <li onclick="selectChannel('channel1')">Channel 1</li>
+                <li onclick="selectChannel('channel2')">Channel 2</li>
+                <!-- To be replaced with List from DB-->
+            </ul>
+        </div>
+        <!-- Cogwheel Buttons -->
+        <div id="cogwheel-buttons">
+            <button class="cogwheel-button" onclick="toggleMenu('menu1')">&#9881;</button>
+        </div>
+
+        <!-- Menu for Cogwheel Button -->
+        <div id="menu1" class="menu" style="display: none">
+            <a href="#" onclick="renameChannel()">Rename Channel</a>
+            <a href="#" onclick="addChannel()">Add Channel</a>
+            <a href="#" onclick="deleteChannel()">Delete Channel</a>
+            <a href="#" onclick="addUser()">Add User</a>
+            <a href="#" onclick="removeUser()">Remove User</a>
+        </div>
+    </aside>
+
+    <div id="center-column">
+        Put text box here
+    </div>
+
+    <aside id="right-column">
+        <!-- search bar -->
+        <input type="text" id="user-search" placeholder="Search Users">
+
+        <h2>Users</h2>
+        <ul id="user-list">
+            <li ondblclick="openUserPage('User1')">User 1</li>
+            <li ondblclick="openUserPage('User2')">User 2</li>
+                <!-- To be replaced with List from DB-->
+        </ul>
+    </aside>
+
+    <script>
+        function goBack() {
+            alert('Going back');
+        }
+
+        function openUserPage(username) {
+            alert('Opening page for ' + username);
+        }
+
+        function selectChannel(channelName) {
+            alert('Selected Channel: ' + channelName);
+        }
+
+        function toggleMenu(menuId) {
+            var menu = document.getElementById(menuId);
+            if (menu.style.display == 'none') {
+                menu.style.display = 'block'
+            }
+            else {
+                menu.style.display = 'none'
+            }
+        }
+
+        function renameChannel() {
+            alert('Rename Channel');
+        }
+
+        function addChannel() {
+            alert('Add Channel');
+        }
+
+        function deleteChannel() {
+            alert('Delete Channel');
+        }
+
+        function addUser() {
+            alert('Add User');
+        }
+
+        function removeUser() {
+            alert('Remove User');
+        }
+    </script>
+</body>
+</html>
