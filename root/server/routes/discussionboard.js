@@ -12,8 +12,6 @@ discussionBoardRoutes.route("/discussions/:discussionID").get(async function (re
     let db_connect = dbo.getDb();
     const discussionID = req.params.discussionID;
 
-    console.log(discussionID)
-
     try {
         const result = await db_connect.collection("discussions").findOne({ _id: new ObjectId(discussionID) });
 
@@ -136,6 +134,44 @@ discussionBoardRoutes.route("discussions/:channelID/:newname/renameChannel").pos
         // If an error occurs, send an error response
         console.error("Error while renaming channel", err);
         response.status(500).json({ error: err.message });
+    }
+});
+
+// Get Channel information
+discussionBoardRoutes.route("/channels/:channelID").get(async function (req, response) {
+    let db_connect = dbo.getDb();
+    const channelID = req.params.channelID;
+
+    try {
+        const result = await db_connect.collection("channels").findOne({ _id: new ObjectId(channelID) });
+
+        if (!result) {
+            response.status(404).send("Channel not found");
+            return;
+        }
+        response.json(result);
+    } catch (err) {
+        console.error("Error fetching Channel:", err);
+        response.status(500).send("Internal Server Error");
+    }
+});
+
+// Get post information
+discussionBoardRoutes.route("/posts/:postsID").get(async function (req, response) {
+    let db_connect = dbo.getDb();
+    const postsID = req.params.postsID;
+
+    try {
+        const result = await db_connect.collection("posts").findOne({ _id: new ObjectId(postsID) });
+
+        if (!result) {
+            response.status(404).send("Posts not found");
+            return;
+        }
+        response.json(result);
+    } catch (err) {
+        console.error("Error fetching Posts:", err);
+        response.status(500).send("Internal Server Error");
     }
 });
 
