@@ -7,53 +7,36 @@ const {json} = require("express");
  
 const ObjectId = require("mongodb").ObjectId;
 
-//Get users by discussion board
-userRoutes.route("/discussions/:discussionID/users").get(async function (req, response) {
+// Get discussion board page from discussionID (includes title, channels and users)
+discussionBoardRoutes.route("/discussions/:discussionID").get(async function (req, response) {
     let db_connect = dbo.getDb();
-    const discussionID = req.body.discussionID;
+    const discussionID = req.params.discussionID;
+
+    console.log(discussionID)
 
     try {
-        const result = await db_connect.collection("discussions").findOne({ _id: new ObjectId(discussionId) });
+        const result = await db_connect.collection("discussions").findOne({ _id: new ObjectId(discussionID) });
 
         if (!result) {
             response.status(404).send("Discussion board not found");
             return;
         }
-        response.json(result.users);
+        response.json(result);
     } catch (err) {
-        console.error("Error fetching user users:", err);
+        console.error("Error fetching Discussion Board:", err);
         response.status(500).send("Internal Server Error");
     }
 });
 
 
-//Get channels by discussion board
-userRoutes.route("/discussions/:discussionID/channels").get(async function (req, response) {
+// Add user to discussion board given userID and discussion board ID
+discussionBoardRoutes.route("discussions/:discussionId/:userID/addUser").put(function (req, res) {
     let db_connect = dbo.getDb();
-    const discussionID = req.body.discussionID;
+    const userID = req.params.userID; // Require userID
+    const discussionId = req.params.discussionId; 
 
     try {
-        const result = await db_connect.collection("discussions").findOne({ _id: new ObjectId(discussionId) });
-
-        if (!result) {
-            response.status(404).send("Discussion board not found");
-            return;
-        }
-        response.json(result.channels);
-    } catch (err) {
-        console.error("Error fetching user channels:", err);
-        response.status(500).send("Internal Server Error");
-    }
-});
-
-// Endpoint to add a user to discussion board
-userRoutes.route("discussions/:discussionId/:userID/addUser").put(function (req, res) {
-    let db_connect = dbo.getDb();
-    const userID = req.body.userID;
-    const discussionId = req.body.discussionId; // Add title from the request body
-
-    try {
-        // Update the discussion document by pulling the userId from both the users and admins arrays
+        // Update the discussion collection by adding userID to users list
         db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
             { $push: { users: userId} }
@@ -68,14 +51,14 @@ userRoutes.route("discussions/:discussionId/:userID/addUser").put(function (req,
     }
 });
 
-// Endpoint to remove a user to discussion board
-userRoutes.route("discussions/:discussionId/:userID/removeUser").post(async function (req, res) {
+// Remove user from discussion board given userID and board ID
+discussionBoardRoutes.route("discussions/:discussionId/:userID/removeUser").post(async function (req, res) {
     let db_connect = dbo.getDb();
-    const userID = req.body.userID;
-    const discussionId = req.body.discussionId; // Add title from the request body
+    const userID = req.params.userID;
+    const discussionId = req.params.discussionId; 
 
     try {
-        // Update the discussion document by pulling the userId from both the users and admins arrays
+        // Update the discussion collection by pulling the userId from the users arrays
         await db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
             { $pull: { users: userId} }
@@ -90,39 +73,61 @@ userRoutes.route("discussions/:discussionId/:userID/removeUser").post(async func
     }
 });
 
-// Endpoint to add a user to discussion board
-userRoutes.route("discussions/:discussionId/:channelID/addChannel").put(function (req, res) {
+// Add Channel to discussion board
+discussionBoardRoutes.route("discussions/:discussionId/:channelID/addChannel").put(function (req, res) {
     let db_connect = dbo.getDb();
-    const channelID = req.body.channelID;
-    const discussionId = req.body.discussionId; // Add title from the request body
+    const channelID = req.params.channelID; // Require channel ID
+    const discussionId = req.params.discussionId; 
 
     try {
-        // Update the discussion document by pulling the userId from both the users and admins arrays
+        // Update the discussion collection by pushing/adding the channelID to the channels list
         db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
             { $push: { channels: channelID} }
         );
 
         // Send a success response back
-        response.status(200).json({ message: "User added from discussion" });
+        response.status(200).json({ message: "Channel added to discussion" });
     } catch (err) {
         // If an error occurs, send an error response
-        console.error("Error while adding user to discussion:", err);
+        console.error("Error while adding channel to discussion:", err);
         response.status(500).json({ error: err.message });
     }
 });
 
-// Endpoint to remove a user to discussion board
-userRoutes.route("discussions/:channelID/:newname/renameChannel").post(async function (req, res) {
+// Remove Channel from discussion board
+discussionBoardRoutes.route("discussions/:discussionId/:channelID/removeChannel").put(function (req, res) {
     let db_connect = dbo.getDb();
-    const channelID = req.body.channelID;
-    const newname = req.body.newname; // Add title from the request body
+    const channelID = req.params.channelID; // Require channel ID
+    const discussionId = req.params.discussionId; 
 
     try {
-        // Update the discussion document by pulling the userId from both the users and admins arrays
+        // Update the discussion collection by pulling the channelID to the channels list
+        db_connect.collection("discussions").updateOne(
+            { _id: new ObjectId(discussionId) }, 
+            { $pull: { channels: channelID} }
+        );
+
+        // Send a success response back
+        response.status(200).json({ message: "Channel added to discussion" });
+    } catch (err) {
+        // If an error occurs, send an error response
+        console.error("Error while adding channel to discussion:", err);
+        response.status(500).json({ error: err.message });
+    }
+});
+
+// Rename channel 
+discussionBoardRoutes.route("discussions/:channelID/:newname/renameChannel").post(async function (req, res) {
+    let db_connect = dbo.getDb();
+    const channelID = req.params.channelID;
+    const newname = req.params.newname; // Require new name
+
+    try {
+        // Set new name for channel
         await db_connect.collection("channels").updateOne(
             { _id: new ObjectId(channelID) }, 
-            { $pull: { name: newname} }
+            { $set: { name: newname} }
         );
 
         // Send a success response back
@@ -133,8 +138,6 @@ userRoutes.route("discussions/:channelID/:newname/renameChannel").post(async fun
         response.status(500).json({ error: err.message });
     }
 });
-
-
 
 
 module.exports = discussionBoardRoutes;
