@@ -22,6 +22,7 @@ discussionRoutes.route("/discussions/add").post(async function (req, response) {
   try {
       let result = await db_connect.collection("discussions").insertOne(myobj);
       response.status(201).json({ insertedId: result.insertedId });
+      console.log(result.insertedId.toString());
   } catch (err) {
       console.error("Error while inserting discussion:", err);
       response.status(500).send(err);
@@ -32,7 +33,8 @@ discussionRoutes.route("/discussions/add").post(async function (req, response) {
 discussionRoutes.route("/discussion/:discussionId/:userId/remove").post(async function (req, response) {
     let db_connect = dbo.getDb();
     const discussionId = req.params.discussionId;
-    const userId = req.params.userId;
+    const userId = req.params.userId
+    console.log(discussionId);
 
     try {
         // Update the discussion document by pulling the userId from both the users and admins arrays
@@ -54,8 +56,5 @@ discussionRoutes.route("/discussion/:discussionId/:userId/remove").post(async fu
 
 
 //Delete discussion
-
-//Update discussion (add users)
-
 
 module.exports = discussionRoutes;

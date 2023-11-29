@@ -18,11 +18,6 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
         return setForm(prev => ({ ...prev, ...value }));
     }
 
-    function handleArrayChange(value, field) {
-        // Converts a comma-separated list into an array for admins, users, or channels
-        const array = value.split(',').map(item => item.trim());
-        updateForm({ [field]: array });
-    }
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -56,7 +51,7 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
             const discussionData = await response.json();
 
             const newDiscussion = {
-                id: discussionData.insertedId,
+                discussionId: discussionData.insertedId.toString(),
                 title: form.title,
             };
 
@@ -94,33 +89,6 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
                         id="title"
                         value={form.title}
                         onChange={(e) => updateForm({ title: e.target.value })}
-                    />
-                </div>
-                <div className="input-container">
-                    <label htmlFor="users">Users (comma-separated):</label>
-                    <input 
-                        type="text"
-                        id="users"
-                        value={form.users.join(", ")}
-                        onChange={(e) => handleArrayChange(e.target.value, 'users')}
-                    />
-                </div>
-                <div className="input-container">
-                    <label htmlFor="admins">Admins (comma-separated):</label>
-                    <input 
-                        type="text"
-                        id="admins"
-                        value={form.admins.join(", ")}
-                        onChange={(e) => handleArrayChange(e.target.value, 'admins')}
-                    />
-                </div>
-                <div className="input-container">
-                    <label htmlFor="channels">Channels (comma-separated):</label>
-                    <input 
-                        type="text"
-                        id="channels"
-                        value={form.channels.join(", ")}
-                        onChange={(e) => handleArrayChange(e.target.value, 'channels')}
                     />
                 </div>
                 <button type="submit">Create Discussion Board</button>

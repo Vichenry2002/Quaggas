@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Modal from 'react-modal'; // Import Modal from 'react-modal'
 import DiscussionsPopUp from './CreateDiscussion'; // Import your DiscussionsPopUp component
 import './Dashboard.css';
 
-
-/*
-Upon creation, a discussion is added to the discussions collection. Further, the id of the collection and its title are stored as a tuple in the user collection.
-Upon initialization of the dashboard, a get request is sent to the discussion field of the user's collection. 
-Leave discussion done.
-Now work on adding admins/users
- */
+Modal.setAppElement('#root'); // Set the app element for the modal for accessibility
 
 export default function UserDashboard() {
     const [userDiscussions, setUserDiscussions] = useState([]);
@@ -79,22 +74,47 @@ export default function UserDashboard() {
     };
     
 
-    const handleDeleteDiscussion = (discussionId) => {
-        console.log("Delete discussion", discussionId);
+    const handleAddChannelsDiscussion = (discussionId) => {
+        console.log("add channel", discussionId);
         // Implement delete discussion logic here
     };
 
     const togglePopUp = () => {
-        // Toggle the pop-up modal
         setPopUpOpen(!isPopUpOpen);
     };
 
     const addNewDiscussion = (newDiscussion) => {
+        console.log("Adding new discussion:", newDiscussion);
+        
+    
+        // Update the state immediately with the new discussion
         setUserDiscussions(prevDiscussions => [...prevDiscussions, newDiscussion]);
     };
+    
+
 
     const deleteDiscussion = (discussionId) => {
         setUserDiscussions(prevDiscussions => prevDiscussions.filter(discussion => discussion.discussionId !== discussionId));
+    };
+
+    const customStyles = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            width: '50%', // Adjust the width as needed
+            border: '1px solid #ccc',
+            borderRadius: '10px',
+            padding: '20px',
+            boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
+            background: '#fff'
+        },
+        overlay: {
+            backgroundColor: 'rgba(0,0,0,0.5)' // Semi-transparent overlay
+        }
     };
     
 
@@ -121,24 +141,30 @@ export default function UserDashboard() {
                             }}>Add Users</button>
                             <button className="button" onClick={(e) => {
                                 e.stopPropagation(); // Prevents click from bubbling up to the li element
-                                handleLeaveDiscussion(discussion.discussionId);
-                            }}>Leave</button>
+                                handleAddChannelsDiscussion(discussion.discussionId);
+                            }}>Add Channels</button>
                             <button className="button" onClick={(e) => {
                                 e.stopPropagation(); // Prevents click from bubbling up to the li element
-                                handleDeleteDiscussion(discussion.discussionId);
-                            }}>Delete</button>
+                                handleLeaveDiscussion(discussion.discussionId);
+                            }}>Leave</button>
                         </div>
                     </li>
                 ))}
             </ul>
             
-            {isPopUpOpen && (
-            <DiscussionsPopUp 
-                isOpen={isPopUpOpen} 
-                onRequestClose={togglePopUp} 
-                addNewDiscussion={addNewDiscussion} // Passing the function as a prop
-            />
-             )}
+            <Modal
+                isOpen={isPopUpOpen}
+                onRequestClose={togglePopUp}
+                style={customStyles}
+                // Style your modal here or in the CSS file
+            >
+                <DiscussionsPopUp 
+                    isOpen={isPopUpOpen} 
+                    
+                    onRequestClose={togglePopUp} 
+                    addNewDiscussion={addNewDiscussion}
+                />
+            </Modal>
         </div>
     );
 }
