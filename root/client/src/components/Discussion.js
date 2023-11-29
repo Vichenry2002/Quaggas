@@ -13,32 +13,28 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { ListItemAvatar, Avatar, TextField, Stack } from '@mui/material';
 
-
 const drawerWidth = 300; //change this to percent scaling later
 
 const DiscussionPage = () => {
     //default channel is general, always at index 0
-    const [selectedIndex, setSelectedDiscussion] = React.useState({title: 'default title'});
+    const [selectedIndex, setSelectedDiscussion] = React.useState(0);
 
-    const [board, setBoard] = React.useState();
+    const [board, setBoard] = React.useState({title: 'default title'});
 
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
 
     useEffect(() => {
-        console.log('asdqwe')
         fetchDiscussionBoard();
-        console.log(board)
-    });
+        console.log(board);
+    }, []);
 
     const fetchDiscussionBoard = async () => {
         try {
             const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
-
-            console.log(response)
             const boardData = await response.json();
 
-            console.log(boardData)
+            console.log(boardData);
             
             if (board) {
                 setBoard(boardData);
