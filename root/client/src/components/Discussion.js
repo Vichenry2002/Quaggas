@@ -12,7 +12,6 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { ListItemAvatar, Avatar, TextField, Stack } from '@mui/material';
-import { styled } from '@mui/system'
 
 
 const drawerWidth = 300; //change this to percent scaling later
