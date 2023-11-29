@@ -3,11 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import './Register.css';
 const bcrypt = require('bcryptjs');
 const saltRounds=10;
+
 export default function Create() {
     const [form, setForm] = useState({
         user_id: "",
         hashedpswd: "",
-
+        discussions: []
     });
     const navigate = useNavigate();
     // These methods will update the state properties.
