@@ -1,5 +1,5 @@
 import './Discussion.css';
-import React from "react";
+import React, { useEffect } from "react";
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -18,7 +18,37 @@ const drawerWidth = 300; //change this to percent scaling later
 
 const DiscussionPage = () => {
     //default channel is general, always at index 0
-    const [selectedIndex, setSelectedDiscussion] = React.useState(0);
+    const [selectedIndex, setSelectedDiscussion] = React.useState({title: 'default title'});
+
+    const [board, setBoard] = React.useState();
+
+    //test constant discussion, to be changed later
+    const discussionId = "6562539e872555cf4b716d2e";
+
+    useEffect(() => {
+        console.log('asdqwe')
+        fetchDiscussionBoard();
+        console.log(board)
+    });
+
+    const fetchDiscussionBoard = async () => {
+        try {
+            const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
+
+            console.log(response)
+            const boardData = await response.json();
+
+            console.log(boardData)
+            
+            if (board) {
+                setBoard(boardData);
+            } else {
+                console.error("Invalid or no data for discussion");
+            }
+        } catch (error) {
+            console.error("Error fetching discussion:", error);
+        }
+    };
 
     //changes the selected discussion page 
     const discussionPageClick = (event , index) => {
@@ -31,9 +61,7 @@ const DiscussionPage = () => {
           <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
               <Typography variant="h6" noWrap component="div">
-                <div className='placeholder'>
-                    Disussion Board Name
-                </div>
+                {board.title}
               </Typography>
             </Toolbar>
           </AppBar>
@@ -50,7 +78,7 @@ const DiscussionPage = () => {
                 <Box height="100vh" sx={{ overflow: 'auto' }}>
                 <List>
                     <ListItemButton 
-                        disablePadding
+                        disablepadding
                         selected={selectedIndex === 0}
                         onClick={(event) => discussionPageClick(event, 0)}
                     >
@@ -58,7 +86,7 @@ const DiscussionPage = () => {
                     </ListItemButton>
 
                     <ListItemButton 
-                        disablePadding
+                        disablepadding
                         selected={selectedIndex === 1}
                         onClick={(event) => discussionPageClick(event, 1)}
                     >
@@ -66,7 +94,7 @@ const DiscussionPage = () => {
                     </ListItemButton>
 
                     <ListItemButton 
-                        disablePadding
+                        disablepadding
                         selected={selectedIndex === 2}
                         onClick={(event) => discussionPageClick(event, 2)}
                     >
@@ -81,7 +109,7 @@ const DiscussionPage = () => {
 
         <Box 
             component="main"
-            fullWidth
+            fullwidth
             anchorOrigin={{vertical: 'bottom'}}
             sx={{ flexGrow: 1, p: 3, border: '2px solid red'}}
         >
@@ -130,7 +158,7 @@ const DiscussionPage = () => {
                     </ListItem>
 
 
-                    <ListItemButton disablePadding>
+                    <ListItemButton disablepadding>
                     <ListItemText primary='member 1' secondary='admin'></ListItemText>
                     </ListItemButton>
                 </List>
@@ -138,15 +166,15 @@ const DiscussionPage = () => {
                 <Divider />
 
                 <List>
-                    <ListItemButton disablePadding>
+                    <ListItemButton disablepadding>
                         <ListItemText primary='member 1' secondary='member'></ListItemText>
                     </ListItemButton>
 
-                    <ListItemButton disablePadding>
+                    <ListItemButton disablepadding>
                         <ListItemText primary='member 2' secondary='member'></ListItemText>
                     </ListItemButton>
 
-                    <ListItemButton disablePadding>
+                    <ListItemButton disablepadding>
                         <ListItemText primary='member 3' secondary='member'></ListItemText>
                     </ListItemButton>
 
