@@ -2,9 +2,6 @@
 import './Landing.css';
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { redirect } from "react-router-dom";
-
-import { Navigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 const bcrypt = require('bcryptjs');
 const saltRounds=10;
@@ -42,25 +39,32 @@ const LandingPage = () => {
                 setForm({ username: "", hashedpswd: "" });
                 return;
             });
-        let encryptedData = await ticket.json()
-        console.log(encryptedData);
-        const decryptedData= CryptoJS.AES.decrypt(encryptedData,secretPass);
-        const data = decryptedData.toString(CryptoJS.enc.Utf8);
-        sessionStorage.setItem("time",data);
-        const expirey = new Date(data);
-        const current = new Date(Date.now());
-        console.log(expirey.toString());
-        console.log(current.toString());
-        if(expirey>current){
-            sessionStorage.setItem('username', usr);
-            return navigate("/register")
-        }
-        else{
-            console.log(sessionStorage.getItem("username"))
-            setForm({ username: "", hashedpswd: "" });
-        }
+
+            let encryptedData = await ticket.json()
+            if (encryptedData!="err") {
+                console.log(encryptedData);
+                const decryptedData = CryptoJS.AES.decrypt(encryptedData, secretPass);
+                const data = decryptedData.toString(CryptoJS.enc.Utf8);
+                sessionStorage.setItem("time", data);
+                const expirey = new Date(data);
+                const current = new Date(Date.now());
+                console.log(expirey.toString());
+                console.log(current.toString());
+                if (expirey > current) {
+                    sessionStorage.setItem('username', usr);
+                    return navigate("/register")
+                } else {
+                    console.log(sessionStorage.getItem("username"))
+                    setForm({username: "", hashedpswd: ""});
+                }
+            }
 
 
+            else {
+                window.alert("Wrong username or password");
+                setForm({ username: "", hashedpswd: "" });
+                return;
+            }
     }
     return (
         <div className="landing-page">

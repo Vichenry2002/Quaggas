@@ -36,24 +36,33 @@ recordRoutes.route("/record/auth").post(async function (req, response) {
     let myobj = {
         name: req.body.username,
     };
-    var ress = await db_connect.collection("users").findOne(
-    myobj)
-    //if password matches-> generate ticket->store ticket with expire time->send ticket over.
-    const isMatch = await bcrypt.compare(req.body.hashedpswd,ress.position);
-    if(isMatch){
-        var now=new Date();
-        let expiryDate2 = new Date(Date.now() + 2 * (60 * 60 * 1000) );
-        console.log(expiryDate2);
-        //var timestamp=Date.prototype.setTime(now.prototype.getTime()+(2*60*60*1000))
-        let ticket =   expiryDate2.toString();
-        console.log(ticket);
-
-
-        const encryptedData = CryptoJS.AES.encrypt(ticket,secretPass);
-        console.log(encryptedData.toString());
-        response.status(201).json(encryptedData.toString());
-
+    var ress = await db_connect.collection("users").findOne(myobj)
+    console.log(ress)
+    if(ress==null){
+        response.json("err")
     }
+    else {
+        //if password matches-> generate ticket->store ticket with expire time->send ticket over.
+        const isMatch = await bcrypt.compare(req.body.hashedpswd, ress.position);
+        if (isMatch) {
+            var now = new Date();
+            let expiryDate2 = new Date(Date.now() + 2 * (60 * 60 * 1000));
+            console.log(expiryDate2);
+            //var timestamp=Date.prototype.setTime(now.prototype.getTime()+(2*60*60*1000))
+            let ticket = expiryDate2.toString();
+            console.log(ticket);
+
+
+            const encryptedData = CryptoJS.AES.encrypt(ticket, secretPass);
+            console.log(encryptedData.toString());
+            response.json(encryptedData.toString());
+
+        }
+        else{
+            response.json("err")
+        }
+    }
+
 
 });
 
@@ -62,16 +71,29 @@ recordRoutes.route("/record/auth").post(async function (req, response) {
 
  //using it for registration
 
-recordRoutes.route("/record/add").post(function (req, response) {
- let db_connect = dbo.getDb();
- let myobj = {
-   name: req.body.user_id,
-   position: req.body.hashedpswd,
- };
- db_connect.collection("users").insertOne(myobj, function (err, res) {
-   if (err) throw err;
-   response.json(res);
- });
+recordRoutes.route("/record/add").post(async function (req, response) {
+    let db_connect = dbo.getDb();
+    let myobj = {
+        name: req.body.user_id,
+        position: req.body.hashedpswd,
+    };
+    let user = {
+        name: req.body.user_id,
+    };
+    var ress = await db_connect.collection("users").findOne(user)
+    console.log(ress);
+    if(ress != null){
+        console.log("here")
+        response.json("err");
+    }
+    else {
+        console.log("there")
+        db_connect.collection("users").insertOne(myobj, function (err, res) {
+            if (err) throw err;
+        });
+        response.json("201")
+
+    }
 });
  
 /*

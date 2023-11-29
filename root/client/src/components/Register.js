@@ -24,7 +24,7 @@ export default function Create() {
         const newPerson = { ...form };
         const ps=await bcrypt.hash(newPerson.hashedpswd,saltRounds);
         newPerson.hashedpswd= ps;
-        await fetch("http://localhost:8081/record/add", {
+        var response = await fetch("http://localhost:8081/record/add", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -32,14 +32,23 @@ export default function Create() {
             body: JSON.stringify(newPerson),
         })
             .catch(error => {
-                console.log("co")
-                window.alert(error);
+                window.alert("username taken");
+                setForm({ username: "", hashedpswd: "" });
                 return;
             });
-        console.log("form not clearing")
-        let frm={user_id: "", hashedpswd:""}
-        updateForm(frm);
-        navigate("/");
+            var res= await response.json();
+            console.log("here");
+            if(res!="err"){
+                console.log("a bit further");
+                return navigate("/");
+
+            }
+            else{
+                window.alert("username taken");
+                setForm({ username: "", hashedpswd: "" });
+                return;
+            }
+
     }
     // This following section will display the form that takes the input from the user.
     return (
