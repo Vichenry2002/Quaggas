@@ -175,5 +175,25 @@ discussionBoardRoutes.route("/posts/:postsID").get(async function (req, response
     }
 });
 
+//To be deleted later, get user from userID
+discussionBoardRoutes.route("/users/:userID").get(async function (req, response) {
+    let db_connect = dbo.getDb();
+    const userID = req.params.userID;
+
+    try {
+        const result = await db_connect.collection("users").findOne({ _id: new ObjectId(userID) });
+
+        if (!result) {
+            response.status(404).send("Users not found");
+            return;
+        }
+        response.json(result);
+    } catch (err) {
+        console.error("Error fetching users:", err);
+        response.status(500).send("Internal Server Error");
+    }
+});
+
+
 
 module.exports = discussionBoardRoutes;
