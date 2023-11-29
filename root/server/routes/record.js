@@ -45,7 +45,7 @@ recordRoutes.route("/record/auth").post(async function (req, response) {
         let expiryDate2 = new Date(Date.now() + 2 * (60 * 60 * 1000) );
         console.log(expiryDate2);
         //var timestamp=Date.prototype.setTime(now.prototype.getTime()+(2*60*60*1000))
-        let ticket =   expiryDate2.toString()+myobj.name;
+        let ticket =   expiryDate2.toString();
         console.log(ticket);
 
 

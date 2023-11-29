@@ -29,8 +29,6 @@ const LandingPage = () => {
         let psraw=form.hashedpswd;
         const ps=await bcrypt.hash(psraw,saltRounds);
         const usr=form.username;
-        sessionStorage.setItem('username', usr);
-        console.log(sessionStorage.getItem('username'))
         const newPerson={"username": usr, "hashedpswd": psraw}
         var ticket =await fetch("http://localhost:8081/record/auth", {
             method: "POST",
@@ -40,17 +38,28 @@ const LandingPage = () => {
             body: JSON.stringify(newPerson),
         })
             .catch(error => {
-                console.log("co")
-                window.alert(error);
+                window.alert("Wrong username or password");
+                setForm({ username: "", hashedpswd: "" });
                 return;
             });
         let encryptedData = await ticket.json()
         console.log(encryptedData);
         const decryptedData= CryptoJS.AES.decrypt(encryptedData,secretPass);
         const data = decryptedData.toString(CryptoJS.enc.Utf8);
-        sessionStorage.setItem("ticket",data);
-        console.log(sessionStorage.getItem("ticket"))
-        return navigate("/register")
+        sessionStorage.setItem("time",data);
+        const expirey = new Date(data);
+        const current = new Date(Date.now());
+        console.log(expirey.toString());
+        console.log(current.toString());
+        if(expirey>current){
+            sessionStorage.setItem('username', usr);
+            return navigate("/register")
+        }
+        else{
+            console.log(sessionStorage.getItem("username"))
+            setForm({ username: "", hashedpswd: "" });
+        }
+
 
     }
     return (
