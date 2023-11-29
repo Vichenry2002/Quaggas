@@ -79,8 +79,8 @@ export default function UserDashboard() {
     };
     
 
-    const handleDeleteDiscussion = (discussionId) => {
-        console.log("Delete discussion", discussionId);
+    const handleAddChannelsDiscussion = (discussionId) => {
+        console.log("add channel", discussionId);
         // Implement delete discussion logic here
     };
 
@@ -121,12 +121,12 @@ export default function UserDashboard() {
                             }}>Add Users</button>
                             <button className="button" onClick={(e) => {
                                 e.stopPropagation(); // Prevents click from bubbling up to the li element
-                                handleLeaveDiscussion(discussion.discussionId);
-                            }}>Leave</button>
+                                handleAddChannelsDiscussion(discussion.discussionId);
+                            }}>Add Channels</button>
                             <button className="button" onClick={(e) => {
                                 e.stopPropagation(); // Prevents click from bubbling up to the li element
-                                handleDeleteDiscussion(discussion.discussionId);
-                            }}>Delete</button>
+                                handleLeaveDiscussion(discussion.discussionId);
+                            }}>Leave</button>
                         </div>
                     </li>
                 ))}
