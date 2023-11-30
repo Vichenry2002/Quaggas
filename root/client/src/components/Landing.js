@@ -52,7 +52,7 @@ const LandingPage = () => {
                 console.log(current.toString());
                 if (expirey > current) {
                     sessionStorage.setItem('username', usr);
-                    return navigate("/register")
+                    return navigate("/dashboard")
                 } else {
                     console.log(sessionStorage.getItem("username"))
                     setForm({username: "", hashedpswd: ""});

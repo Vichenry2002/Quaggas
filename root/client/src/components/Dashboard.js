@@ -9,7 +9,7 @@ Modal.setAppElement('#root'); // Set the app element for the modal for accessibi
 export default function UserDashboard() {
     const [userDiscussions, setUserDiscussions] = useState([]);
     const [isPopUpOpen, setPopUpOpen] = useState(false); // State for managing the pop-up
-    const userId = "vhenry_test1"; // Replace with actual user ID (from auth or context)
+    const userId = sessionStorage.getItem("username"); // Replace with actual user ID (from auth or context)
     const navigate = useNavigate();
 
     const navigateToDiscussion = (discussionId) => {

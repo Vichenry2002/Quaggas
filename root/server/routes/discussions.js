@@ -52,7 +52,36 @@ discussionRoutes.route("/discussion/:discussionId/:userId/remove").post(async fu
     }
 });
 
-
+//create channel
+discussionRoutes.route("/channel/add").post(async function (req, response) {
+    let db_connect = dbo.getDb();
+    const channelName = req.body.name; 
+    const posts = req.body.posts; 
+  
+    const newChannel = {
+      name: channelName,
+      posts: posts,
+    };
+  
+    try {
+      // Insert the new channel into the database
+      const result = await db_connect.collection("channels").insertOne(newChannel);
+  
+      // Send the new channel ID back in the response
+      response.status(201).json({
+        status: 'success',
+        message: 'Channel created successfully',
+        channelId: result.insertedId, 
+      });
+    } catch (error) {
+      response.status(500).json({
+        status: 'failure',
+        message: 'Error creating channel',
+        error: error.message,
+      });
+    }
+  });
+  
 
 
 //Delete discussion

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussion }) {
     //TODO: Replace with actual user ID (from auth context or similar)
-    const userId = "vhenry_test1";
+    const userId = sessionStorage.getItem("username");
 
     const [form, setForm] = useState({
         title: "",
@@ -23,16 +23,38 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
         e.preventDefault();
         const updatedUsers = [...form.users, userId]; // Append userId to the users array
         const updatedAdmins = [...form.admins, userId];
-        const defaultChannel = ["main"];
 
-        const newBoard = {
-            ...form,
-            users: updatedUsers,
-            admins: updatedAdmins,
-            channels: defaultChannel
-        };
+        const createChannel = {
+            name: 'main', 
+            posts: []
+          };
+
+        
 
         try {
+
+            //creating channel in channel discussion
+            let response_1 = await fetch("http://localhost:8081/channel/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(createChannel),
+            });
+
+            let data = await response_1.json();
+            let channelId = data.channelId;
+
+            console.log('Channel ID:', channelId);
+        
+
+            const newBoard = {
+                ...form,
+                users: updatedUsers,
+                admins: updatedAdmins,
+                channels: channelId
+            };
+
             // Adding discussion to discussions collection
             let response = await fetch("http://localhost:8081/discussions/add", {
                 method: "POST",
