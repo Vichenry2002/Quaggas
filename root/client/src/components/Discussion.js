@@ -36,8 +36,10 @@ const DiscussionPage = () => {
         const discussion_board = await fetchDiscussionBoard();
         const admins_list = await fetchAdmins(discussion_board.admins);
         const users_list = await fetchUsers(discussion_board.admins, discussion_board.users);
-
-        console.log(admins_list);
+        const channel_list = await fetchChannel(discussion_board.channels)
+        const channel_list_name = fetchChannelnames(channel_list)
+        
+        console.log(channel_list_name);
         console.log(users_list);
     }
 
@@ -57,22 +59,35 @@ const DiscussionPage = () => {
         }
     };
 
-    const fetchChannel = async () => {
+    const fetchChannel = async (channel_id_list) => {
         try {
-            const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
-            const boardData = await response.json();
-
-            console.log(boardData);
-            
-            if (board) {
-                setBoard(boardData);
-            } else {
-                console.error("Invalid or no data for discussion");
-            }
+          const channelDataList = [];
+      
+          for (const channel_id of channel_id_list) {
+            const response = await fetch(`http://localhost:8081/channels/${channel_id}`);
+            const channelData = await response.json();
+            channelDataList.push(channelData);
+          }
+      
+          return channelDataList
+      
         } catch (error) {
-            console.error("Error fetching discussion:", error);
+          console.error("Error fetching channels:", error);
         }
     };
+
+    const fetchChannelnames = (channel_list) => {
+        const channelDataList = [];
+    
+        for (const channel of channel_list) {
+        channelDataList.push(channel.channel.name);
+        }
+    
+        return channelDataList
+      
+
+    };
+      
 
     const fetchAdmins = async (admins_id_list) => {
         try {
@@ -124,7 +139,7 @@ const DiscussionPage = () => {
           <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
               <Typography variant="h6" noWrap component="div">
-                {board.title}
+                {board.admins}
               </Typography>
             </Toolbar>
           </AppBar>
