@@ -21,6 +21,7 @@ const DiscussionPage = () => {
 
     const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
     const [channel, setChannel] = React.useState([]);
+    const [posts, setPosts] = React.useState([]);
     const [admins, setAdmins] = React.useState([]);
     const [users, setUsers] = React.useState([])
 
@@ -37,14 +38,14 @@ const DiscussionPage = () => {
         const users_list = await fetchUsers(discussion_board.admins, discussion_board.users);
         const channel_list = await fetchChannel(discussion_board.channels)
         const channel_list_name = fetchChannelnames(channel_list)
-        
-        setChannel(channel_list_name)
-        console.log(channel_list_name);
-        console.log(admins_list);
+        const posts_list = fetchPosts(channel_list)
 
+        setChannel(channel_list_name)
+        setPosts(posts_list)
         setAdmins(admins_list)
         setUsers(users_list)
-        console.log(admins)
+
+        console.log(posts_list)
     }
 
     const fetchDiscussionBoard = async () => {
@@ -91,6 +92,18 @@ const DiscussionPage = () => {
       
 
     };
+
+    const fetchPosts = (channel_list) => {
+        const postDataList = [];
+    
+        for (const channel of channel_list) {
+            postDataList.push(channel.posts);
+        }
+    
+        return postDataList
+      
+
+    };
       
     const fetchAdmins = async (admins_id_list) => {
         try {
@@ -134,50 +147,6 @@ const DiscussionPage = () => {
     //changes the selected discussion page 
     const discussionPageClick = (event , index) => {
         setSelectedDiscussion(index);
-    }
-
-    function stringToColor(string) {
-        let hash = 0;
-        let i;
-      
-        /* eslint-disable no-bitwise */
-        for (i = 0; i < string.length; i += 1) {
-          hash = string.charCodeAt(i) + ((hash << 5) - hash);
-        }
-      
-        let color = '#';
-      
-        for (i = 0; i < 3; i += 1) {
-          const value = (hash >> (i * 8)) & 0xff;
-          color += `00${value.toString(16)}`.slice(-2);
-        }
-        /* eslint-enable no-bitwise */
-      
-        return color;
-    }
-
-    function stringAvatar(string) {
-        let hash = 0;
-        let i;
-      
-        /* eslint-disable no-bitwise */
-        for (i = 0; i < string.length; i += 1) {
-          hash = string.charCodeAt(i) + ((hash << 5) - hash);
-        }
-      
-        let color = '#';
-      
-        for (i = 0; i < 3; i += 1) {
-          const value = (hash >> (i * 8)) & 0xff;
-          color += `00${value.toString(16)}`.slice(-2);
-        }
-        /* eslint-enable no-bitwise */
-      
-        return {
-            sx: {
-              bgcolor: stringToColor(name),
-            },
-        };
     }
 
     return (
@@ -268,11 +237,7 @@ const DiscussionPage = () => {
                         key = {index}
                     >
                     <ListItemAvatar>
-                        <Avatar
-                            {...stringAvatar(admin)}
-                        >
-                            {admin.charAt(0)}
-                        </Avatar>
+                        <Avatar>{admin.charAt(0)}</Avatar>
                     </ListItemAvatar>
                     <ListItemText primary={admin} secondary='Admin'></ListItemText>
                     </ListItem>
@@ -300,11 +265,7 @@ const DiscussionPage = () => {
                             key = {index}
                         >
                         <ListItemAvatar>
-                            <Avatar
-                                {...stringAvatar(user)}
-                            >
-                                {user.charAt(0)}
-                            </Avatar>
+                            <Avatar>{user.charAt(0)}</Avatar>
                         </ListItemAvatar>
                         <ListItemText primary={user} secondary='User'></ListItemText>
                         </ListItem>
