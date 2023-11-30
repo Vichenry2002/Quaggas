@@ -149,6 +149,31 @@ const DiscussionPage = () => {
         setSelectedDiscussion(index);
     }
 
+    function stringToColor(string) {
+        let hash = 0;
+        let i;
+      
+        /* eslint-disable no-bitwise */
+        for (i = 0; i < string.length; i += 1) {
+          hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+      
+        let color = '#';
+      
+        for (i = 0; i < 3; i += 1) {
+          const value = (hash >> (i * 8)) & 0xff;
+          color += `00${value.toString(16)}`.slice(-2);
+        }
+        /* eslint-enable no-bitwise */
+      
+        return {
+            sx: {
+              bgcolor: color,
+            },
+          };
+      }
+
+
     return (
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
@@ -211,7 +236,6 @@ const DiscussionPage = () => {
                 id="send-message" 
                 label="Send a message" 
                 variant="outlined" 
-                anchor="bottom"
             />
         </Box>
 
@@ -237,23 +261,11 @@ const DiscussionPage = () => {
                         key = {index}
                     >
                     <ListItemAvatar>
-                        <Avatar>{admin.charAt(0)}</Avatar>
+                        <Avatar {...stringToColor(admin)}>{admin.charAt(0)}</Avatar>
                     </ListItemAvatar>
                     <ListItemText primary={admin} secondary='Admin'></ListItemText>
                     </ListItem>
                 ))}
-
-                {/* <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                        <Avatar>H</Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary='member 1' secondary='admin'></ListItemText>
-                </ListItem>
-
-
-                <ListItemButton disablepadding>
-                    <ListItemText primary='member 1' secondary='admin'></ListItemText>
-                </ListItemButton> */}
             </List>
 
                 <Divider />
@@ -265,7 +277,7 @@ const DiscussionPage = () => {
                             key = {index}
                         >
                         <ListItemAvatar>
-                            <Avatar>{user.charAt(0)}</Avatar>
+                            <Avatar {...stringToColor(user)}>{user.charAt(0)}</Avatar>
                         </ListItemAvatar>
                         <ListItemText primary={user} secondary='User'></ListItemText>
                         </ListItem>
