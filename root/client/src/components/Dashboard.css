@@ -1,0 +1,79 @@
+body {
+    background-color: #e7cce4; /* Set the background color for the entire page */
+}
+
+.dashboard-container {
+    margin: 2vw;
+    font-family: 'Arial', sans-serif;
+    position: relative;
+    background-color: #e7cce4;
+   
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15vh;
+    margin-top: 5vh;
+    font-size: 70%;
+}
+
+
+.dashboard-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* Center the title */
+    margin: 0; /* Remove margin from the h1 tag if it has any */
+}
+
+.discussion-list {
+    list-style-type: none;
+    padding: 0;
+    max-width: 80vw;
+    margin: 2vh auto 0; /* This will center the list on the page */
+}
+
+
+.discussion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1vh 2vw;
+    margin-bottom: 1vh;
+    background-color: #f2f2f2; /* Light grey background */
+    border-radius: 1vh; /* Rounded corners for each list item */
+}
+
+.discussion-item span {
+    margin-right: 2vw;
+}
+
+.discussion-item div {
+    display: flex;
+    gap: 1vw; /* This creates equal spacing between buttons */
+}
+
+.button {
+    padding: 1vh 2vw;
+    border: none;
+    border-radius: 1vh;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #e8e8e8; /* Slightly darker background on hover */
+}
+
+/* Additional styling for the Create button to make it stand out */
+.create-button {
+    padding: 1vh 2vw;
+    background-color: #007bff; /* Bootstrap primary color for example */
+    color: white;
+    border-radius: 1vh;
+}
+
+.create-button:hover {
+    background-color: #0056b3; /* Darker shade for hover state */
+}

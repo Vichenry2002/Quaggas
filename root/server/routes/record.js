@@ -70,7 +70,6 @@ recordRoutes.route("/record/auth").post(async function (req, response) {
 
 
  //using it for registration
-
 recordRoutes.route("/record/add").post(async function (req, response) {
     let db_connect = dbo.getDb();
     let myobj = {

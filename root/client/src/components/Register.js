@@ -8,7 +8,7 @@ export default function Create() {
     const [form, setForm] = useState({
         user_id: "",
         hashedpswd: "",
-
+        discussions: []
     });
     const navigate = useNavigate();
     // These methods will update the state properties.
