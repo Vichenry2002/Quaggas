@@ -19,17 +19,78 @@ const DiscussionPage = () => {
     //default channel is general, always at index 0
     const [selectedIndex, setSelectedDiscussion] = React.useState(0);
 
-    const [board, setBoard] = React.useState({title: 'default title'});
+    const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
+    const [channel, setChannel] = React.useState({name: 'default-channel'});
+
+    const [admins, setAdmins] = React.useState([]);
+    const [users, setUsers] = React.useState([])
 
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
 
     useEffect(() => {
-        fetchDiscussionBoard();
-        console.log(board);
+        fetchPage();
     }, []);
 
+    const fetchPage = async () => {
+        await fetchDiscussionBoard();
+        await fetchAdmins(board.admins);
+
+        console.log(admins)
+    }
+
     const fetchDiscussionBoard = async () => {
+        try {
+            const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
+            const boardData = await response.json();
+
+            if (board) {
+                setBoard(boardData);
+            } else {
+                console.error("Invalid or no data for discussion");
+            }
+        } catch (error) {
+            console.error("Error fetching discussion:", error);
+        }
+    };
+
+    const fetchChannel = async () => {
+        try {
+            const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
+            const boardData = await response.json();
+
+            console.log(boardData);
+            
+            if (board) {
+                setBoard(boardData);
+            } else {
+                console.error("Invalid or no data for discussion");
+            }
+        } catch (error) {
+            console.error("Error fetching discussion:", error);
+        }
+    };
+
+    const fetchAdmins = async (admins_id_list) => {
+        try {
+            var admins_list = []
+
+            admins_id_list.forEach(async (element) => {
+                const response = await fetch(`http://localhost:8081/users/${element}`);
+                const name = await response.json();
+
+                if (name) {
+                    admins_list.push(name)
+                } 
+            });
+
+            setAdmins(admins_list)
+        } catch (error) {
+            console.error("Error loading admins:", error);
+        }
+    };
+
+    const fetchUsers = async () => {
         try {
             const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
             const boardData = await response.json();
