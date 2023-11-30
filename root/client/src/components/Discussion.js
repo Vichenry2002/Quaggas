@@ -44,6 +44,7 @@ const DiscussionPage = () => {
         console.log(admins_list);
 
         setAdmins(admins_list)
+        setUsers(users_list)
         console.log(admins)
     }
 
@@ -142,7 +143,7 @@ const DiscussionPage = () => {
           <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
               <Typography variant="h6" noWrap component="div">
-                {board.admins}
+                {board.title}
               </Typography>
             </Toolbar>
           </AppBar>
@@ -224,13 +225,13 @@ const DiscussionPage = () => {
                         key = {index}
                     >
                     <ListItemAvatar>
-                        <Avatar></Avatar>
+                        <Avatar>{admin.charAt(0)}</Avatar>
                     </ListItemAvatar>
                     <ListItemText primary={admin} secondary='Admin'></ListItemText>
                     </ListItem>
                 ))}
 
-                <ListItem alignItems="flex-start">
+                {/* <ListItem alignItems="flex-start">
                     <ListItemAvatar>
                         <Avatar>H</Avatar>
                     </ListItemAvatar>
@@ -239,25 +240,24 @@ const DiscussionPage = () => {
 
 
                 <ListItemButton disablepadding>
-                <ListItemText primary='member 1' secondary='admin'></ListItemText>
-                </ListItemButton>
+                    <ListItemText primary='member 1' secondary='admin'></ListItemText>
+                </ListItemButton> */}
             </List>
 
                 <Divider />
 
                 <List>
-                    <ListItemButton disablepadding>
-                        <ListItemText primary='member 1' secondary='member'></ListItemText>
-                    </ListItemButton>
-
-                    <ListItemButton disablepadding>
-                        <ListItemText primary='member 2' secondary='member'></ListItemText>
-                    </ListItemButton>
-
-                    <ListItemButton disablepadding>
-                        <ListItemText primary='member 3' secondary='member'></ListItemText>
-                    </ListItemButton>
-
+                    {users && users.map((user, index) => (
+                        <ListItem 
+                            alignItems="flex-start"
+                            key = {index}
+                        >
+                        <ListItemAvatar>
+                            <Avatar>{user.charAt(0)}</Avatar>
+                        </ListItemAvatar>
+                        <ListItemText primary={user} secondary='User'></ListItemText>
+                        </ListItem>
+                    ))}
                 </List>
         </Drawer>
         </Box>
