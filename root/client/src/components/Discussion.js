@@ -20,7 +20,7 @@ const DiscussionPage = () => {
     const [selectedIndex, setSelectedDiscussion] = React.useState(0);
 
     const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
-    const [channel, setChannel] = React.useState({name: 'default-channel'});
+    const [channel, setChannel] = React.useState([]);
 
     const [admins, setAdmins] = React.useState([]);
     const [users, setUsers] = React.useState([])
@@ -39,6 +39,7 @@ const DiscussionPage = () => {
         const channel_list = await fetchChannel(discussion_board.channels)
         const channel_list_name = fetchChannelnames(channel_list)
         
+        setChannel(channel_list_name)
         console.log(channel_list_name);
         console.log(users_list);
     }
@@ -155,30 +156,16 @@ const DiscussionPage = () => {
                 <Toolbar />
                 <Box height="100vh" sx={{ overflow: 'auto' }}>
                 <List>
-                    <ListItemButton 
+                    {channel.map((channelName, index) => (
+                        <ListItemButton 
+                        key={index}
                         disablepadding
-                        selected={selectedIndex === 0}
-                        onClick={(event) => discussionPageClick(event, 0)}
-                    >
-                        general
-                    </ListItemButton>
-
-                    <ListItemButton 
-                        disablepadding
-                        selected={selectedIndex === 1}
-                        onClick={(event) => discussionPageClick(event, 1)}
-                    >
-                        channel 0
-                    </ListItemButton>
-
-                    <ListItemButton 
-                        disablepadding
-                        selected={selectedIndex === 2}
-                        onClick={(event) => discussionPageClick(event, 2)}
-                    >
-                        channel 1
-                    </ListItemButton>
-
+                        selected={selectedIndex === index}
+                        onClick={(event) => discussionPageClick(event, index)}
+                        >
+                        {channelName}
+                        </ListItemButton>
+                    ))}
                 </List>
                 <Divider />
 
