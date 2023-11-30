@@ -101,8 +101,6 @@ const DiscussionPage = () => {
         }
     
         return postDataList
-      
-
     };
       
     const fetchAdmins = async (admins_id_list) => {
@@ -220,15 +218,17 @@ const DiscussionPage = () => {
         >
             <Toolbar />
             <Stack spacing={0}>
-                <ListItem>
-                    messages asdlkajflakjflakjfolk
-                </ListItem>
+                {posts[selectedIndex] && posts[selectedIndex].map((post, index) => (
+                    <div>
+                        <ListItem
+                            key = {index}
+                        >
+                        {post.content}
+                        </ListItem>
 
-                <Divider />
-
-                <ListItem>
-                    messages asdlkajflakjflakjfolk
-                </ListItem>
+                        <Divider />
+                    </div>
+                ))}
             </Stack>
 
             <TextField 
