@@ -181,7 +181,7 @@ discussionBoardRoutes.route("/users/:userID").get(async function (req, response)
             response.status(404).send("Users not found");
             return;
         }
-        response.json(result);
+        response.json(result.name);
     } catch (err) {
         console.error("Error fetching users:", err);
         response.status(500).send("Internal Server Error");

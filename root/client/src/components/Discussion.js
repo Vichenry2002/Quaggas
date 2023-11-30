@@ -33,10 +33,12 @@ const DiscussionPage = () => {
     }, []);
 
     const fetchPage = async () => {
-        await fetchDiscussionBoard();
-        await fetchAdmins(board.admins);
+        const discussion_board = await fetchDiscussionBoard();
+        const admins_list = await fetchAdmins(discussion_board.admins);
+        const users_list = await fetchUsers(discussion_board.admins, discussion_board.users);
 
-        console.log(admins)
+        console.log(admins_list);
+        console.log(users_list);
     }
 
     const fetchDiscussionBoard = async () => {
@@ -44,8 +46,9 @@ const DiscussionPage = () => {
             const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
             const boardData = await response.json();
 
-            if (board) {
-                setBoard(boardData);
+            if (boardData) {
+                setBoard(boardData)
+                return boardData
             } else {
                 console.error("Invalid or no data for discussion");
             }
@@ -84,24 +87,27 @@ const DiscussionPage = () => {
                 } 
             });
 
-            setAdmins(admins_list)
+            return admins_list
         } catch (error) {
             console.error("Error loading admins:", error);
         }
     };
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (admins, users) => {
         try {
-            const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
-            const boardData = await response.json();
+            const diff = users.filter(x => !admins.includes(x));
+            var users = []
 
-            console.log(boardData);
-            
-            if (board) {
-                setBoard(boardData);
-            } else {
-                console.error("Invalid or no data for discussion");
-            }
+            diff.forEach(async (element) => {
+                const response = await fetch(`http://localhost:8081/users/${element}`);
+                const name = await response.json();
+
+                if (name) {
+                    users.push(name)
+                } 
+            });
+
+            return users
         } catch (error) {
             console.error("Error fetching discussion:", error);
         }
