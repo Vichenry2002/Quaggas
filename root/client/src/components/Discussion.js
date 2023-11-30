@@ -21,7 +21,6 @@ const DiscussionPage = () => {
 
     const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
     const [channel, setChannel] = React.useState([]);
-
     const [admins, setAdmins] = React.useState([]);
     const [users, setUsers] = React.useState([])
 
@@ -137,6 +136,50 @@ const DiscussionPage = () => {
         setSelectedDiscussion(index);
     }
 
+    function stringToColor(string) {
+        let hash = 0;
+        let i;
+      
+        /* eslint-disable no-bitwise */
+        for (i = 0; i < string.length; i += 1) {
+          hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+      
+        let color = '#';
+      
+        for (i = 0; i < 3; i += 1) {
+          const value = (hash >> (i * 8)) & 0xff;
+          color += `00${value.toString(16)}`.slice(-2);
+        }
+        /* eslint-enable no-bitwise */
+      
+        return color;
+    }
+
+    function stringAvatar(string) {
+        let hash = 0;
+        let i;
+      
+        /* eslint-disable no-bitwise */
+        for (i = 0; i < string.length; i += 1) {
+          hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+      
+        let color = '#';
+      
+        for (i = 0; i < 3; i += 1) {
+          const value = (hash >> (i * 8)) & 0xff;
+          color += `00${value.toString(16)}`.slice(-2);
+        }
+        /* eslint-enable no-bitwise */
+      
+        return {
+            sx: {
+              bgcolor: stringToColor(name),
+            },
+        };
+    }
+
     return (
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
@@ -225,7 +268,11 @@ const DiscussionPage = () => {
                         key = {index}
                     >
                     <ListItemAvatar>
-                        <Avatar>{admin.charAt(0)}</Avatar>
+                        <Avatar
+                            {...stringAvatar(admin)}
+                        >
+                            {admin.charAt(0)}
+                        </Avatar>
                     </ListItemAvatar>
                     <ListItemText primary={admin} secondary='Admin'></ListItemText>
                     </ListItem>
@@ -253,7 +300,11 @@ const DiscussionPage = () => {
                             key = {index}
                         >
                         <ListItemAvatar>
-                            <Avatar>{user.charAt(0)}</Avatar>
+                            <Avatar
+                                {...stringAvatar(user)}
+                            >
+                                {user.charAt(0)}
+                            </Avatar>
                         </ListItemAvatar>
                         <ListItemText primary={user} secondary='User'></ListItemText>
                         </ListItem>
