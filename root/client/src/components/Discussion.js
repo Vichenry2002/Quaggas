@@ -40,7 +40,10 @@ const DiscussionPage = () => {
         const channel_list_name = fetchChannelnames(channel_list)
         
         console.log(channel_list_name);
-        console.log(users_list);
+        console.log(admins_list);
+
+        setAdmins(admins_list)
+        console.log(admins)
     }
 
     const fetchDiscussionBoard = async () => {
@@ -88,7 +91,6 @@ const DiscussionPage = () => {
 
     };
       
-
     const fetchAdmins = async (admins_id_list) => {
         try {
             var admins_list = []
@@ -226,20 +228,33 @@ const DiscussionPage = () => {
             anchor="right"
         >
             <Toolbar />
-                <Divider />
-                <List>
-                    <ListItem alignItems="flex-start">
-                        <ListItemAvatar>
-                            <Avatar>H</Avatar>
-                        </ListItemAvatar>
-                        <ListItemText primary='member 1' secondary='admin'></ListItemText>
+            <Divider />
+
+            <List>
+                {admins && admins.map((admin, index) => (
+                    <ListItem 
+                        alignItems="flex-start"
+                        key = {index}
+                    >
+                    <ListItemAvatar>
+                        <Avatar></Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={admin} secondary='Admin'></ListItemText>
                     </ListItem>
+                ))}
 
-
-                    <ListItemButton disablepadding>
+                <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                        <Avatar>H</Avatar>
+                    </ListItemAvatar>
                     <ListItemText primary='member 1' secondary='admin'></ListItemText>
-                    </ListItemButton>
-                </List>
+                </ListItem>
+
+
+                <ListItemButton disablepadding>
+                <ListItemText primary='member 1' secondary='admin'></ListItemText>
+                </ListItemButton>
+            </List>
 
                 <Divider />
 
