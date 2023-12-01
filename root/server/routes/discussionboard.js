@@ -128,7 +128,7 @@ discussionBoardRoutes.route("/discussions/:discussionId/:channelID/removeChannel
 });
 
 // Rename channel 
-discussionBoardRoutes.route("discussions/:channelID/:newname/renameChannel").post(async function (req, response) {
+discussionBoardRoutes.route("/discussions/:channelID/:newname/renameChannel").post(async function (req, response) {
     let db_connect = dbo.getDb();
     const channelID = req.params.channelID;
     const newname = req.params.newname; // Require new name
