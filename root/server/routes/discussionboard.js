@@ -28,7 +28,7 @@ discussionBoardRoutes.route("/discussions/:discussionID").get(async function (re
 
 
 // Add user to discussion board given userID and discussion board ID
-discussionBoardRoutes.route("discussions/:discussionId/:userID/addUser").put(function (req, response) {
+discussionBoardRoutes.route("/discussions/:discussionId/:userID/addUser").post(function (req, response) {
     let db_connect = dbo.getDb();
     const userID = req.params.userID; // Require userID
     const discussionId = req.params.discussionId; 
@@ -37,7 +37,7 @@ discussionBoardRoutes.route("discussions/:discussionId/:userID/addUser").put(fun
         // Update the discussion collection by adding userID to users list
         db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
-            { $push: { users: userId} }
+            { $push: { users: userID} }
         );
 
         // Send a success response back
@@ -50,7 +50,7 @@ discussionBoardRoutes.route("discussions/:discussionId/:userID/addUser").put(fun
 });
 
 // Remove user from discussion board given userID and board ID
-discussionBoardRoutes.route("discussions/:discussionId/:userID/removeUser").post(async function (req, response) {
+discussionBoardRoutes.route("/discussions/:discussionId/:userID/removeUser").post(async function (req, response) {
     let db_connect = dbo.getDb();
     const userID = req.params.userID;
     const discussionId = req.params.discussionId; 
@@ -128,7 +128,7 @@ discussionBoardRoutes.route("/discussions/:discussionId/:channelID/removeChannel
 });
 
 // Rename channel 
-discussionBoardRoutes.route("/discussions/:channelID/:newname/renameChannel").post(async function (req, response) {
+discussionBoardRoutes.route("discussions/:channelID/:newname/renameChannel").post(async function (req, response) {
     let db_connect = dbo.getDb();
     const channelID = req.params.channelID;
     const newname = req.params.newname; // Require new name
@@ -194,6 +194,24 @@ discussionBoardRoutes.route("/users/:userID").get(async function (req, response)
             return;
         }
         response.json(result.name);
+    } catch (err) {
+        console.error("Error fetching users:", err);
+        response.status(500).send("Internal Server Error");
+    }
+});
+
+//To be deleted later, get user from userID
+discussionBoardRoutes.route("/usersadd/:userID").get(async function (req, response) {
+    let db_connect = dbo.getDb();
+    const userID = req.params.userID;
+    try {
+        const result = await db_connect.collection("users").findOne({ name: userID });
+
+        if (!result) {
+            response.status(404).send("Users not found");
+            return;
+        }
+        response.json(result._id);
     } catch (err) {
         console.error("Error fetching users:", err);
         response.status(500).send("Internal Server Error");
