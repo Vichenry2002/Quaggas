@@ -210,15 +210,38 @@ const DiscussionPage = () => {
         }
     };
 
-    const handlePopup4Submit = () => {
-        // Handle form submission for Popup 2
-        console.log(`Submitting Popup 2 with input: ${popup2Input}`);
-        // Add your logic here to handle the form data
-        // You can send the data to the server or update state as needed
-        // Clear input after submission
-        setPopup2Input('');
-        // Close the popup
-        setPopup2Open(false);
+    const handlePopup4Submit = async () => {
+        try {
+            // Check if popup1Input is already in channel_list_name
+            if (users.includes(popup4Input)) {
+                alert(`User "${popup4Input}" exist in the list.`);
+                // Optionally, you can display a message or take other actions
+            } else {
+                const response = await fetch(`http://localhost:8081/usersadd/${popup4Input}`);
+                const isReal = await response.json();
+
+                if (isReal != "") {
+                    const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/addUser`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    alert(`User has been added.`);
+        
+                    // Clear input after submission
+                    popup4Input('');
+                    // Close the popup
+                    setPopup4Open(false);
+                }
+                else {
+                    alert("User doesn't exist");
+                }
+            }
+        } catch (error) {
+            console.error("Error while renaming channel:", error);
+            // Handle the error as needed
+        }
     };
 
     const handlePopup5Submit = () => {
