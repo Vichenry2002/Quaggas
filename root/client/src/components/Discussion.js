@@ -11,7 +11,13 @@ import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import Button from '@mui/material/Button';
 import { ListItemAvatar, Avatar, TextField, Stack } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+
 
 const drawerWidth = 300; //change this to percent scaling later
 
@@ -24,7 +30,18 @@ const DiscussionPage = () => {
     const [posts, setPosts] = React.useState([]);
     const [admins, setAdmins] = React.useState([]);
     const [users, setUsers] = React.useState([])
-
+    const [open, setOpen] = React.useState(false);
+    const [popup1Open, setPopup1Open] = React.useState(false);
+    const [popup2Open, setPopup2Open] = React.useState(false);
+    const [popup3Open, setPopup3Open] = React.useState(false);
+    const [popup4Open, setPopup4Open] = React.useState(false);
+    const [popup5Open, setPopup5Open] = React.useState(false);
+    const [popup1Input, setPopup1Input] = React.useState('');
+    const [popup2Input, setPopup2Input] = React.useState('');
+    const [popup3Input, setPopup3Input] = React.useState('');
+    const [popup4Input, setPopup4Input] = React.useState('');
+    const [popup5Input, setPopup5Input] = React.useState('');
+    
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
 
@@ -47,6 +64,123 @@ const DiscussionPage = () => {
 
         console.log(posts_list)
     }
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+    
+    const handleClose = () => {
+        setOpen(false);
+    };
+    
+    const handlePopup1Open = () => {
+        setPopup1Open(true);
+    };
+
+    const handlePopup1Close = () => {
+        setPopup1Open(false);
+        // Clear input when closing
+        setPopup1Input('');
+    };
+
+    const handlePopup2Open = () => {
+        setPopup2Open(true);
+    };
+
+    const handlePopup2Close = () => {
+        setPopup2Open(false);
+        // Clear input when closing
+        setPopup2Input('');
+    };
+
+    const handlePopup3Open = () => {
+        setPopup1Open(true);
+    };
+
+    const handlePopup3Close = () => {
+        setPopup1Open(false);
+        // Clear input when closing
+        setPopup1Input('');
+    };
+
+    const handlePopup4Open = () => {
+        setPopup2Open(true);
+    };
+
+    const handlePopup4Close = () => {
+        setPopup2Open(false);
+        // Clear input when closing
+        setPopup2Input('');
+    };
+
+    const handlePopup5Open = () => {
+        setPopup1Open(true);
+    };
+
+    const handlePopup5Close = () => {
+        setPopup1Open(false);
+        // Clear input when closing
+        setPopup1Input('');
+    };
+
+
+    // Add similar handlers for other popups
+
+    const handlePopup1Submit = () => {
+        // Handle form submission for Popup 1
+        console.log(`Submitting Popup 1 with input: ${popup1Input}`);
+        // Add your logic here to handle the form data
+        // You can send the data to the server or update state as needed
+        // Clear input after submission
+        setPopup1Input('');
+        // Close the popup
+        setPopup1Open(false);
+    };
+
+    const handlePopup2Submit = () => {
+        // Handle form submission for Popup 2
+        console.log(`Submitting Popup 2 with input: ${popup2Input}`);
+        // Add your logic here to handle the form data
+        // You can send the data to the server or update state as needed
+        // Clear input after submission
+        setPopup2Input('');
+        // Close the popup
+        setPopup2Open(false);
+    };
+
+    const handlePopup3Submit = () => {
+        // Handle form submission for Popup 1
+        console.log(`Submitting Popup 1 with input: ${popup1Input}`);
+        // Add your logic here to handle the form data
+        // You can send the data to the server or update state as needed
+        // Clear input after submission
+        setPopup1Input('');
+        // Close the popup
+        setPopup1Open(false);
+    };
+
+    const handlePopup4Submit = () => {
+        // Handle form submission for Popup 2
+        console.log(`Submitting Popup 2 with input: ${popup2Input}`);
+        // Add your logic here to handle the form data
+        // You can send the data to the server or update state as needed
+        // Clear input after submission
+        setPopup2Input('');
+        // Close the popup
+        setPopup2Open(false);
+    };
+
+    const handlePopup5Submit = () => {
+        // Handle form submission for Popup 1
+        console.log(`Submitting Popup 1 with input: ${popup1Input}`);
+        // Add your logic here to handle the form data
+        // You can send the data to the server or update state as needed
+        // Clear input after submission
+        setPopup1Input('');
+        // Close the popup
+        setPopup1Open(false);
+    };
+
 
     const fetchDiscussionBoard = async () => {
         try {
@@ -101,6 +235,8 @@ const DiscussionPage = () => {
         }
     
         return postDataList
+      
+
     };
       
     const fetchAdmins = async (admins_id_list) => {
@@ -147,31 +283,6 @@ const DiscussionPage = () => {
         setSelectedDiscussion(index);
     }
 
-    function stringToColor(string) {
-        let hash = 0;
-        let i;
-      
-        /* eslint-disable no-bitwise */
-        for (i = 0; i < string.length; i += 1) {
-          hash = string.charCodeAt(i) + ((hash << 5) - hash);
-        }
-      
-        let color = '#';
-      
-        for (i = 0; i < 3; i += 1) {
-          const value = (hash >> (i * 8)) & 0xff;
-          color += `00${value.toString(16)}`.slice(-2);
-        }
-        /* eslint-enable no-bitwise */
-      
-        return {
-            sx: {
-              bgcolor: color,
-            },
-          };
-      }
-
-
     return (
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
@@ -206,9 +317,141 @@ const DiscussionPage = () => {
                     ))}
                 </List>
                 <Divider />
+                    <Button variant="contained" onClick={handleOpen}>
+                        Contained
+                    </Button>
+
+                    <Dialog open={open} onClose={handleClose}>
+                    <DialogTitle>Admin Controls</DialogTitle>
+                    <DialogContent>
+                    <Stack spacing={2}>
+                        <Button variant="contained" onClick={handlePopup1Open}>
+                        Open Popup 1
+                        </Button>
+                        <Button variant="contained" onClick={handlePopup2Open}>
+                        Open Popup 2
+                        </Button>
+                        <Button variant="contained" onClick={handlePopup3Open}>
+                        Open Popup 3
+                        </Button>
+                        <Button variant="contained" onClick={handlePopup4Open}>
+                        Open Popup 4
+                        </Button>
+                        <Button variant="contained" onClick={handlePopup5Open}>
+                        Open Popup 5
+                        </Button>
+                    </Stack>
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={handleClose} variant="contained">
+                        Close
+                    </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={popup1Open} onClose={handlePopup1Close}>
+                    <DialogTitle>Popup 1 Title</DialogTitle>
+                    <DialogContent>
+                    <TextField
+                        label="Enter Text"
+                        variant="outlined"
+                        value={popup1Input}
+                        onChange={(e) => setPopup1Input(e.target.value)}
+                    />
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={handlePopup1Submit} variant="contained" color="primary">
+                        Submit
+                    </Button>
+                    <Button onClick={handlePopup1Close} variant="contained">
+                        Close
+                    </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={popup2Open} onClose={handlePopup2Close}>
+                    <DialogTitle>Popup 2 Title</DialogTitle>
+                    <DialogContent>
+                    <TextField
+                        label="Enter Text"
+                        variant="outlined"
+                        value={popup2Input}
+                        onChange={(e) => setPopup2Input(e.target.value)}
+                    />
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={handlePopup2Submit} variant="contained" color="primary">
+                        Submit
+                    </Button>
+                    <Button onClick={handlePopup2Close} variant="contained">
+                        Close
+                    </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={popup3Open} onClose={handlePopup3Close}>
+                    <DialogTitle>Popup 3 Title</DialogTitle>
+                    <DialogContent>
+                    <TextField
+                        label="Enter Text"
+                        variant="outlined"
+                        value={popup3Input}
+                        onChange={(e) => setPopup3Input(e.target.value)}
+                    />
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={handlePopup3Submit} variant="contained" color="primary">
+                        Submit
+                    </Button>
+                    <Button onClick={handlePopup3Close} variant="contained">
+                        Close
+                    </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={popup4Open} onClose={handlePopup4Close}>
+                    <DialogTitle>Popup 4 Title</DialogTitle>
+                    <DialogContent>
+                    <TextField
+                        label="Enter Text"
+                        variant="outlined"
+                        value={popup4Input}
+                        onChange={(e) => setPopup4Input(e.target.value)}
+                    />
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={handlePopup4Submit} variant="contained" color="primary">
+                        Submit
+                    </Button>
+                    <Button onClick={handlePopup4Close} variant="contained">
+                        Close
+                    </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={popup5Open} onClose={handlePopup5Close}>
+                    <DialogTitle>Popup 5 Title</DialogTitle>
+                    <DialogContent>
+                    <TextField
+                        label="Enter Text"
+                        variant="outlined"
+                        value={popup5Input}
+                        onChange={(e) => setPopup5Input(e.target.value)}
+                    />
+                    </DialogContent>
+                    <DialogActions>
+                    <Button onClick={handlePopup5Submit} variant="contained" color="primary">
+                        Submit
+                    </Button>
+                    <Button onClick={handlePopup5Close} variant="contained">
+                        Close
+                    </Button>
+                    </DialogActions>
+                </Dialog>
 
                 </Box>
             </Drawer>
+            
 
         <Box 
             component="main"
@@ -218,17 +461,15 @@ const DiscussionPage = () => {
         >
             <Toolbar />
             <Stack spacing={0}>
-                {posts[selectedIndex] && posts[selectedIndex].map((post, index) => (
-                    <div>
-                        <ListItem
-                            key = {index}
-                        >
-                        {post.content}
-                        </ListItem>
+                <ListItem>
+                    messages asdlkajflakjflakjfolk
+                </ListItem>
 
-                        <Divider />
-                    </div>
-                ))}
+                <Divider />
+
+                <ListItem>
+                    messages asdlkajflakjflakjfolk
+                </ListItem>
             </Stack>
 
             <TextField 
@@ -236,6 +477,7 @@ const DiscussionPage = () => {
                 id="send-message" 
                 label="Send a message" 
                 variant="outlined" 
+                anchor="bottom"
             />
         </Box>
 
@@ -261,11 +503,23 @@ const DiscussionPage = () => {
                         key = {index}
                     >
                     <ListItemAvatar>
-                        <Avatar {...stringToColor(admin)}>{admin.charAt(0)}</Avatar>
+                        <Avatar>{admin.charAt(0)}</Avatar>
                     </ListItemAvatar>
                     <ListItemText primary={admin} secondary='Admin'></ListItemText>
                     </ListItem>
                 ))}
+
+                {/* <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                        <Avatar>H</Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary='member 1' secondary='admin'></ListItemText>
+                </ListItem>
+
+
+                <ListItemButton disablepadding>
+                    <ListItemText primary='member 1' secondary='admin'></ListItemText>
+                </ListItemButton> */}
             </List>
 
                 <Divider />
@@ -277,7 +531,7 @@ const DiscussionPage = () => {
                             key = {index}
                         >
                         <ListItemAvatar>
-                            <Avatar {...stringToColor(user)}>{user.charAt(0)}</Avatar>
+                            <Avatar>{user.charAt(0)}</Avatar>
                         </ListItemAvatar>
                         <ListItemText primary={user} secondary='User'></ListItemText>
                         </ListItem>
