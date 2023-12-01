@@ -20,11 +20,9 @@ import DialogActions from '@mui/material/DialogActions';
 
 
 const drawerWidth = 300; //change this to percent scaling later
-
 const DiscussionPage = () => {
     //default channel is general, always at index 0
     const [selectedIndex, setSelectedDiscussion] = React.useState(0);
-
     const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
     const [channel, setChannel] = React.useState([]);
     const [posts, setPosts] = React.useState([]);
@@ -44,11 +42,9 @@ const DiscussionPage = () => {
     
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
-
     useEffect(() => {
         fetchPage();
     }, []);
-
     const fetchPage = async () => {
         const discussion_board = await fetchDiscussionBoard();
         const admins_list = await fetchAdmins(discussion_board.admins);
@@ -56,12 +52,10 @@ const DiscussionPage = () => {
         const channel_list = await fetchChannel(discussion_board.channels)
         const channel_list_name = fetchChannelnames(channel_list)
         const posts_list = fetchPosts(channel_list)
-
         setChannel(channel_list_name)
         setPosts(posts_list)
         setAdmins(admins_list)
         setUsers(users_list)
-
         console.log(posts_list)
     }
 
@@ -124,29 +118,64 @@ const DiscussionPage = () => {
     };
 
 
-    // Add similar handlers for other popups
-
-    const handlePopup1Submit = () => {
-        // Handle form submission for Popup 1
-        console.log(`Submitting Popup 1 with input: ${popup1Input}`);
-        // Add your logic here to handle the form data
-        // You can send the data to the server or update state as needed
-        // Clear input after submission
-        setPopup1Input('');
-        // Close the popup
-        setPopup1Open(false);
+    const handlePopup1Submit = async () => {
+        try {
+            // Check if popup1Input is already in channel_list_name
+            if (channel.includes(popup1Input)) {
+                alert(`Channel "${popup1Input}" already exists in the list.`);
+                // Optionally, you can display a message or take other actions
+            } else {
+                // Send a request to add a channel to the discussion board
+                const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${popup1Input}/addChannel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                alert(`Channel has been created.`);
+    
+                // Clear input after submission
+                setPopup1Input('');
+                // Close the popup
+                setPopup1Open(false);
+            }
+        } catch (error) {
+            console.error("Error while adding channel to discussion:", error);
+            // Handle the error as needed
+        }
     };
-
-    const handlePopup2Submit = () => {
-        // Handle form submission for Popup 2
-        console.log(`Submitting Popup 2 with input: ${popup2Input}`);
-        // Add your logic here to handle the form data
-        // You can send the data to the server or update state as needed
-        // Clear input after submission
-        setPopup2Input('');
-        // Close the popup
-        setPopup2Open(false);
+    
+      
+    const handlePopup2Submit = async () => {
+        try {
+            // Check if popup2Input is not in channel
+            if (!channel.includes(popup2Input)) {
+                alert(`Channel "${popup2Input}" doesn't exist in the list.`);
+                // Optionally, you can display a message or take other actions
+            } else {
+                // Send a request to remove a channel to the discussion board
+                const index = channel.indexOf(popup2Input);
+                const channel_id = board.channels[index]
+                console.log(channel_id)
+                const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${channel_id}/removeChannel`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                alert(`Channel has been removed.`);
+    
+                // Clear input after submission
+                setPopup2Input('');
+                // Close the popup
+                setPopup2Open(false);
+            }
+        } catch (error) {
+            console.error("Error while removing channel from discussion:", error);
+            // Handle the error as needed
+        }
     };
+    
 
     const handlePopup3Submit = () => {
         // Handle form submission for Popup 1
@@ -186,7 +215,6 @@ const DiscussionPage = () => {
         try {
             const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
             const boardData = await response.json();
-
             if (boardData) {
                 setBoard(boardData)
                 return boardData
@@ -197,7 +225,6 @@ const DiscussionPage = () => {
             console.error("Error fetching discussion:", error);
         }
     };
-
     const fetchChannel = async (channel_id_list) => {
         try {
           const channelDataList = [];
@@ -214,7 +241,6 @@ const DiscussionPage = () => {
           console.error("Error fetching channels:", error);
         }
     };
-
     const fetchChannelnames = (channel_list) => {
         const channelDataList = [];
     
@@ -224,65 +250,75 @@ const DiscussionPage = () => {
     
         return channelDataList
       
-
     };
-
     const fetchPosts = (channel_list) => {
         const postDataList = [];
     
         for (const channel of channel_list) {
             postDataList.push(channel.posts);
         }
-    
+
         return postDataList
-      
-
     };
-      
+
     const fetchAdmins = async (admins_id_list) => {
-        try {
-            var admins_list = []
-
-            admins_id_list.forEach(async (element) => {
-                const response = await fetch(`http://localhost:8081/users/${element}`);
-                const name = await response.json();
-
-                if (name) {
-                    admins_list.push(name)
-                } 
-            });
-
-            return admins_list
-        } catch (error) {
-            console.error("Error loading admins:", error);
-        }
-    };
-
+      try {
+          var admins_list = []
+          admins_id_list.forEach(async (element) => {
+              const response = await fetch(`http://localhost:8081/users/${element}`);
+              const name = await response.json();
+              if (name) {
+                  admins_list.push(name)
+              } 
+          });
+          return admins_list
+      } catch (error) {
+          console.error("Error loading admins:", error);
+      }
+  };
     const fetchUsers = async (admins, users) => {
         try {
             const diff = users.filter(x => !admins.includes(x));
             var users = []
-
             diff.forEach(async (element) => {
                 const response = await fetch(`http://localhost:8081/users/${element}`);
                 const name = await response.json();
-
                 if (name) {
                     users.push(name)
                 } 
             });
-
             return users
         } catch (error) {
             console.error("Error fetching discussion:", error);
         }
     };
-
     //changes the selected discussion page 
     const discussionPageClick = (event , index) => {
         setSelectedDiscussion(index);
     }
-
+    function stringToColor(string) {
+        let hash = 0;
+        let i;
+      
+        /* eslint-disable no-bitwise */
+        for (i = 0; i < string.length; i += 1) {
+          hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+      
+        let color = '#';
+      
+        for (i = 0; i < 3; i += 1) {
+          const value = (hash >> (i * 8)) & 0xff;
+          color += `00${value.toString(16)}`.slice(-2);
+        }
+        /* eslint-enable no-bitwise */
+      
+        return {
+            sx: {
+              bgcolor: color,
+            },
+          };
+      }
     return (
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
@@ -293,7 +329,6 @@ const DiscussionPage = () => {
               </Typography>
             </Toolbar>
           </AppBar>
-
             <Drawer
                 variant="permanent"
                 sx={{
@@ -318,7 +353,7 @@ const DiscussionPage = () => {
                 </List>
                 <Divider />
                     <Button variant="contained" onClick={handleOpen}>
-                        Contained
+                        Admin Settings
                     </Button>
 
                     <Dialog open={open} onClose={handleClose}>
@@ -326,19 +361,19 @@ const DiscussionPage = () => {
                     <DialogContent>
                     <Stack spacing={2}>
                         <Button variant="contained" onClick={handlePopup1Open}>
-                        Open Popup 1
+                        Add Channel
                         </Button>
                         <Button variant="contained" onClick={handlePopup2Open}>
-                        Open Popup 2
+                        Remove Channel
                         </Button>
                         <Button variant="contained" onClick={handlePopup3Open}>
-                        Open Popup 3
+                        Rename Channel
                         </Button>
                         <Button variant="contained" onClick={handlePopup4Open}>
-                        Open Popup 4
+                        Add User
                         </Button>
                         <Button variant="contained" onClick={handlePopup5Open}>
-                        Open Popup 5
+                        Remove User
                         </Button>
                     </Stack>
                     </DialogContent>
@@ -451,8 +486,6 @@ const DiscussionPage = () => {
 
                 </Box>
             </Drawer>
-            
-
         <Box 
             component="main"
             fullwidth
@@ -461,26 +494,29 @@ const DiscussionPage = () => {
         >
             <Toolbar />
             <Stack spacing={0}>
-                <ListItem>
-                    messages asdlkajflakjflakjfolk
-                </ListItem>
+                {posts[selectedIndex] && posts[selectedIndex].map((post, index) => (
+                    <div>
+                        <ListItem
+                            key = {index}
+                        >
+                        {post.content}
+                        </ListItem>
 
-                <Divider />
-
-                <ListItem>
-                    messages asdlkajflakjflakjfolk
-                </ListItem>
+                        <Divider />
+                    </div>
+                ))}
             </Stack>
 
             <TextField 
+    
+    
+  
                 fullWidth
                 id="send-message" 
                 label="Send a message" 
                 variant="outlined" 
-                anchor="bottom"
             />
         </Box>
-
         <Drawer
             sx={{
             width: drawerWidth,
@@ -495,7 +531,6 @@ const DiscussionPage = () => {
         >
             <Toolbar />
             <Divider />
-
             <List>
                 {admins && admins.map((admin, index) => (
                     <ListItem 
@@ -503,27 +538,13 @@ const DiscussionPage = () => {
                         key = {index}
                     >
                     <ListItemAvatar>
-                        <Avatar>{admin.charAt(0)}</Avatar>
+                        <Avatar {...stringToColor(admin)}>{admin.charAt(0)}</Avatar>
                     </ListItemAvatar>
                     <ListItemText primary={admin} secondary='Admin'></ListItemText>
                     </ListItem>
                 ))}
-
-                {/* <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                        <Avatar>H</Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary='member 1' secondary='admin'></ListItemText>
-                </ListItem>
-
-
-                <ListItemButton disablepadding>
-                    <ListItemText primary='member 1' secondary='admin'></ListItemText>
-                </ListItemButton> */}
             </List>
-
                 <Divider />
-
                 <List>
                     {users && users.map((user, index) => (
                         <ListItem 
@@ -531,7 +552,7 @@ const DiscussionPage = () => {
                             key = {index}
                         >
                         <ListItemAvatar>
-                            <Avatar>{user.charAt(0)}</Avatar>
+                            <Avatar {...stringToColor(user)}>{user.charAt(0)}</Avatar>
                         </ListItemAvatar>
                         <ListItemText primary={user} secondary='User'></ListItemText>
                         </ListItem>
@@ -541,5 +562,4 @@ const DiscussionPage = () => {
         </Box>
       );
 };
-
 export default DiscussionPage;
