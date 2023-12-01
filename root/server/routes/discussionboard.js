@@ -28,16 +28,23 @@ discussionBoardRoutes.route("/discussions/:discussionID").get(async function (re
 
 
 // Add user to discussion board given userID and discussion board ID
-discussionBoardRoutes.route("/discussions/:discussionId/:userID/addUser").post(function (req, response) {
+discussionBoardRoutes.route("/discussions/:discussionId/:userID/:title/addUser").post(function (req, response) {
     let db_connect = dbo.getDb();
     const userID = req.params.userID; // Require userID
     const discussionId = req.params.discussionId; 
+    const title = req.params.title; 
+
 
     try {
         // Update the discussion collection by adding userID to users list
         db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
             { $push: { users: userID} }
+        );
+
+        db_connect.collection("users").updateOne(
+            { _id: new ObjectId(userID) }, 
+            { $push: { discussions: { discussionId, title } } }
         );
 
         // Send a success response back
@@ -59,7 +66,12 @@ discussionBoardRoutes.route("/discussions/:discussionId/:userID/removeUser").pos
         // Update the discussion collection by pulling the userId from the users arrays
         await db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
-            { $pull: { users: userId} }
+            { $pull: { users: userID} }
+        );
+
+        await db_connect.collection("users").updateOne(
+            { _id: new ObjectId(userID) }, 
+            { $pull: { discussions: { discussionId: discussionId } } }
         );
 
         // Send a success response back
@@ -128,7 +140,7 @@ discussionBoardRoutes.route("/discussions/:discussionId/:channelID/removeChannel
 });
 
 // Rename channel 
-discussionBoardRoutes.route("discussions/:channelID/:newname/renameChannel").post(async function (req, response) {
+discussionBoardRoutes.route("/discussions/:channelID/:newname/renameChannel").post(async function (req, response) {
     let db_connect = dbo.getDb();
     const channelID = req.params.channelID;
     const newname = req.params.newname; // Require new name
