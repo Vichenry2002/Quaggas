@@ -36,7 +36,8 @@ const DiscussionPage = () => {
     const [popup5Open, setPopup5Open] = React.useState(false);
     const [popup1Input, setPopup1Input] = React.useState('');
     const [popup2Input, setPopup2Input] = React.useState('');
-    const [popup3Input, setPopup3Input] = React.useState('');
+    const [popup3Input1, setPopup3Input1] = React.useState('');
+    const [popup3Input2, setPopup3Input2] = React.useState('');
     const [popup4Input, setPopup4Input] = React.useState('');
     const [popup5Input, setPopup5Input] = React.useState('');
     
@@ -88,33 +89,35 @@ const DiscussionPage = () => {
     };
 
     const handlePopup3Open = () => {
-        setPopup1Open(true);
+        setPopup3Open(true);
     };
 
     const handlePopup3Close = () => {
-        setPopup1Open(false);
+        setPopup3Open(false);
         // Clear input when closing
-        setPopup1Input('');
+        setPopup3Input1('');
+        setPopup3Input2('');
+
     };
 
     const handlePopup4Open = () => {
-        setPopup2Open(true);
+        setPopup4Open(true);
     };
 
     const handlePopup4Close = () => {
-        setPopup2Open(false);
+        setPopup4Open(false);
         // Clear input when closing
-        setPopup2Input('');
+        setPopup4Input('');
     };
 
     const handlePopup5Open = () => {
-        setPopup1Open(true);
+        setPopup5Open(true);
     };
 
     const handlePopup5Close = () => {
-        setPopup1Open(false);
+        setPopup5Open(false);
         // Clear input when closing
-        setPopup1Input('');
+        setPopup5Input('');
     };
 
 
@@ -177,15 +180,34 @@ const DiscussionPage = () => {
     };
     
 
-    const handlePopup3Submit = () => {
-        // Handle form submission for Popup 1
-        console.log(`Submitting Popup 1 with input: ${popup1Input}`);
-        // Add your logic here to handle the form data
-        // You can send the data to the server or update state as needed
-        // Clear input after submission
-        setPopup1Input('');
-        // Close the popup
-        setPopup1Open(false);
+    const handlePopup3Submit = async () => {
+        try {
+            // Check if popup1Input is already in channel_list_name
+            if (!channel.includes(popup3Input1)) {
+                alert(`Channel "${popup3Input1}" doesn't exist in the list.`);
+                // Optionally, you can display a message or take other actions
+            } else {
+                // Send a request to add a channel to the discussion board
+                const index = channel.indexOf(popup3Input1);
+                const channel_id = board.channels[index]
+                const response = await fetch(`http://localhost:8081/discussions/${channel_id}/${popup3Input2}/renameChannel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                alert(`Channel has been renamed.`);
+    
+                // Clear input after submission
+                setPopup3Input1('');
+                setPopup3Input2('');
+                // Close the popup
+                setPopup3Open(false);
+            }
+        } catch (error) {
+            console.error("Error while renaming channel:", error);
+            // Handle the error as needed
+        }
     };
 
     const handlePopup4Submit = () => {
@@ -427,22 +449,29 @@ const DiscussionPage = () => {
                 <Dialog open={popup3Open} onClose={handlePopup3Close}>
                     <DialogTitle>Popup 3 Title</DialogTitle>
                     <DialogContent>
-                    <TextField
-                        label="Enter Text"
-                        variant="outlined"
-                        value={popup3Input}
-                        onChange={(e) => setPopup3Input(e.target.value)}
-                    />
+                        <TextField
+                            label="Enter Text 1"
+                            variant="outlined"
+                            value={popup3Input1}
+                            onChange={(e) => setPopup3Input1(e.target.value)}
+                        />
+                        <TextField
+                            label="Enter Text 2"
+                            variant="outlined"
+                            value={popup3Input2}
+                            onChange={(e) => setPopup3Input2(e.target.value)}
+                        />
                     </DialogContent>
                     <DialogActions>
-                    <Button onClick={handlePopup3Submit} variant="contained" color="primary">
-                        Submit
-                    </Button>
-                    <Button onClick={handlePopup3Close} variant="contained">
-                        Close
-                    </Button>
+                        <Button onClick={handlePopup3Submit} variant="contained" color="primary">
+                            Submit
+                        </Button>
+                        <Button onClick={handlePopup3Close} variant="contained">
+                            Close
+                        </Button>
                     </DialogActions>
                 </Dialog>
+
 
                 <Dialog open={popup4Open} onClose={handlePopup4Close}>
                     <DialogTitle>Popup 4 Title</DialogTitle>
