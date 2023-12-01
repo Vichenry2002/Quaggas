@@ -125,7 +125,7 @@ const DiscussionPage = () => {
         try {
             // Check if popup1Input is already in channel_list_name
             if (channel.includes(popup1Input)) {
-                alert(`Channel "${popup1Input}" already exists in the list.`);
+                alert(`Channel ${popup1Input} already exists in the list.`);
                 // Optionally, you can display a message or take other actions
             } else {
                 // Send a request to add a channel to the discussion board
@@ -153,7 +153,7 @@ const DiscussionPage = () => {
         try {
             // Check if popup2Input is not in channel
             if (!channel.includes(popup2Input)) {
-                alert(`Channel "${popup2Input}" doesn't exist in the list.`);
+                alert(`Channel ${popup2Input} doesn't exist in the list.`);
                 // Optionally, you can display a message or take other actions
             } else {
                 // Send a request to remove a channel to the discussion board
@@ -184,7 +184,7 @@ const DiscussionPage = () => {
         try {
             // Check if popup1Input is already in channel_list_name
             if (!channel.includes(popup3Input1)) {
-                alert(`Channel "${popup3Input1}" doesn't exist in the list.`);
+                alert(`Channel ${popup3Input1} doesn't exist in the list.`);
                 // Optionally, you can display a message or take other actions
             } else {
                 // Send a request to add a channel to the discussion board
@@ -205,7 +205,7 @@ const DiscussionPage = () => {
                 setPopup3Open(false);
             }
         } catch (error) {
-            console.error("Error while renaming channel:", error);
+            console.error("Error while adding channel:", error);
             // Handle the error as needed
         }
     };
@@ -214,14 +214,14 @@ const DiscussionPage = () => {
         try {
             // Check if popup1Input is already in channel_list_name
             if (users.includes(popup4Input)) {
-                alert(`User "${popup4Input}" exist in the list.`);
+                alert(`User ${popup4Input} exist in the list.`);
                 // Optionally, you can display a message or take other actions
             } else {
                 const response = await fetch(`http://localhost:8081/usersadd/${popup4Input}`);
                 const isReal = await response.json();
 
                 if (isReal != "") {
-                    const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/addUser`, {
+                    const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/${board.title}/addUser`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -230,7 +230,7 @@ const DiscussionPage = () => {
                     alert(`User has been added.`);
         
                     // Clear input after submission
-                    popup4Input('');
+                    setPopup4Input('');
                     // Close the popup
                     setPopup4Open(false);
                 }
@@ -239,20 +239,37 @@ const DiscussionPage = () => {
                 }
             }
         } catch (error) {
-            console.error("Error while renaming channel:", error);
+            console.error("Error while adding user:", error);
             // Handle the error as needed
         }
     };
 
-    const handlePopup5Submit = () => {
-        // Handle form submission for Popup 1
-        console.log(`Submitting Popup 1 with input: ${popup1Input}`);
-        // Add your logic here to handle the form data
-        // You can send the data to the server or update state as needed
-        // Clear input after submission
-        setPopup1Input('');
-        // Close the popup
-        setPopup1Open(false);
+    const handlePopup5Submit = async () => {
+        try {
+            // Check if popup2Input is not in channel
+            if (!users.includes(popup5Input)) {
+                alert(`User ${popup5Input} doesn't exist in the list.`);
+            } else {
+                // Send a request to remove a channel to the discussion board
+                const temp = await fetch(`http://localhost:8081/usersadd/${popup5Input}`);
+                const isReal = await temp.json();
+                const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/removeUser`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                alert(`User has been removed.`);
+    
+                // Clear input after submission
+                setPopup5Input('');
+                // Close the popup
+                setPopup5Open(false);
+            }
+        } catch (error) {
+            console.error("Error while removing user from discussion:", error);
+            // Handle the error as needed
+        }
     };
 
 
