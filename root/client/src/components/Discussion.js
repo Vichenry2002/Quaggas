@@ -19,6 +19,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import SendIcon from '@mui/icons-material/Send';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CustomDialog from './dialogComponents';
+
 
 
 const drawerWidth = 300; //change this to percent scaling later
@@ -37,12 +39,11 @@ const DiscussionPage = () => {
     const [popup3Open, setPopup3Open] = React.useState(false);
     const [popup4Open, setPopup4Open] = React.useState(false);
     const [popup5Open, setPopup5Open] = React.useState(false);
-    const [popup1Input, setPopup1Input] = React.useState('');
-    const [popup2Input, setPopup2Input] = React.useState('');
+    const [currentPopup, setCurrentPopup] = React.useState(null);
+
     const [popup3Input1, setPopup3Input1] = React.useState('');
     const [popup3Input2, setPopup3Input2] = React.useState('');
-    const [popup4Input, setPopup4Input] = React.useState('');
-    const [popup5Input, setPopup5Input] = React.useState('');
+    const [commandInput, setcommandInput] = React.useState('');
     
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
@@ -75,25 +76,6 @@ const DiscussionPage = () => {
         setOpen(false);
     };
     
-    const handlePopup1Open = () => {
-        setPopup1Open(true);
-    };
-
-    const handlePopup1Close = () => {
-        setPopup1Open(false);
-        // Clear input when closing
-        setPopup1Input('');
-    };
-
-    const handlePopup2Open = () => {
-        setPopup2Open(true);
-    };
-
-    const handlePopup2Close = () => {
-        setPopup2Open(false);
-        // Clear input when closing
-        setPopup2Input('');
-    };
 
     const handlePopup3Open = () => {
         setPopup3Open(true);
@@ -107,84 +89,16 @@ const DiscussionPage = () => {
 
     };
 
-    const handlePopup4Open = () => {
-        setPopup4Open(true);
-    };
-
-    const handlePopup4Close = () => {
-        setPopup4Open(false);
-        // Clear input when closing
-        setPopup4Input('');
-    };
-
-    const handlePopup5Open = () => {
-        setPopup5Open(true);
-    };
-
-    const handlePopup5Close = () => {
-        setPopup5Open(false);
-        // Clear input when closing
-        setPopup5Input('');
-    };
-
-
-    const handlePopup1Submit = async () => {
-        try {
-            // Check if popup1Input is already in channel_list_name
-            if (channel.includes(popup1Input)) {
-                alert(`Channel ${popup1Input} already exists in the list.`);
-                // Optionally, you can display a message or take other actions
-            } else {
-                // Send a request to add a channel to the discussion board
-                const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${popup1Input}/addChannel`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                alert(`Channel has been created.`);
-    
-                // Clear input after submission
-                setPopup1Input('');
-                // Close the popup
-                setPopup1Open(false);
-            }
-        } catch (error) {
-            console.error("Error while adding channel to discussion:", error);
-            // Handle the error as needed
-        }
-    };
-    
+    const handlePopupOpen = (popupNumber) => {
+        setCurrentPopup(popupNumber);
+      };
       
-    const handlePopup2Submit = async () => {
-        try {
-            // Check if popup2Input is not in channel
-            if (!channel.includes(popup2Input)) {
-                alert(`Channel ${popup2Input} doesn't exist in the list.`);
-                // Optionally, you can display a message or take other actions
-            } else {
-                // Send a request to remove a channel to the discussion board
-                const index = channel.indexOf(popup2Input);
-                const channel_id = board.channels[index]
-                console.log(channel_id)
-                const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${channel_id}/removeChannel`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                alert(`Channel has been removed.`);
-    
-                // Clear input after submission
-                setPopup2Input('');
-                // Close the popup
-                setPopup2Open(false);
-            }
-        } catch (error) {
-            console.error("Error while removing channel from discussion:", error);
-            // Handle the error as needed
-        }
-    };
+      const handlePopupClose = () => {
+        setCurrentPopup(null);
+        setcommandInput('');
+
+        // Optionally, you can clear input or perform other actions
+      };
     
 
     const handlePopup3Submit = async () => {
@@ -216,69 +130,6 @@ const DiscussionPage = () => {
             // Handle the error as needed
         }
     };
-
-    const handlePopup4Submit = async () => {
-        try {
-            // Check if popup1Input is already in channel_list_name
-            if (users.includes(popup4Input)) {
-                alert(`User ${popup4Input} exist in the list.`);
-                // Optionally, you can display a message or take other actions
-            } else {
-                const response = await fetch(`http://localhost:8081/usersadd/${popup4Input}`);
-                const isReal = await response.json();
-
-                if (isReal != "") {
-                    const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/${board.title}/addUser`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                    alert(`User has been added.`);
-        
-                    // Clear input after submission
-                    setPopup4Input('');
-                    // Close the popup
-                    setPopup4Open(false);
-                }
-                else {
-                    alert("User doesn't exist");
-                }
-            }
-        } catch (error) {
-            console.error("Error while adding user:", error);
-            // Handle the error as needed
-        }
-    };
-
-    const handlePopup5Submit = async () => {
-        try {
-            // Check if popup2Input is not in channel
-            if (!users.includes(popup5Input)) {
-                alert(`User ${popup5Input} doesn't exist in the list.`);
-            } else {
-                // Send a request to remove a channel to the discussion board
-                const temp = await fetch(`http://localhost:8081/usersadd/${popup5Input}`);
-                const isReal = await temp.json();
-                const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/removeUser`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                alert(`User has been removed.`);
-    
-                // Clear input after submission
-                setPopup5Input('');
-                // Close the popup
-                setPopup5Open(false);
-            }
-        } catch (error) {
-            console.error("Error while removing user from discussion:", error);
-            // Handle the error as needed
-        }
-    };
-
 
     const fetchDiscussionBoard = async () => {
         try {
@@ -367,6 +218,87 @@ const DiscussionPage = () => {
         setSelectedDiscussion(index);
     }
 
+    const submitHandle = async (inputValue) => {
+        try {
+            switch (inputValue) {
+                case 1:
+                    // Check if channel is already in channe list
+                    if (channel.includes(commandInput)) {
+                        alert(`Channel ${commandInput} already exists in the list.`);
+                    } else {
+                        // Send a request to add a channel to the discussion board
+                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${commandInput}/addChannel`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        alert(`Channel has been created.`);
+                    }
+                    break;
+                case 2:
+                    // Check if command is not in channel
+                    if (!channel.includes(commandInput)) {
+                        alert(`Channel ${commandInput} doesn't exist in the list.`);
+                    } else {
+                        // Send a request to remove a channel from the discussion board
+                        const index = channel.indexOf(commandInput);
+                        const channel_id = board.channels[index]
+                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${channel_id}/removeChannel`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        alert(`Channel has been removed.`);
+                    }
+                    break;
+                case 4:
+                    // Check if commandInput is already in user list
+                    if (users.includes(commandInput)) {
+                        alert(`User ${commandInput} exist in the list.`);
+                    } else {
+                        const temp = await fetch(`http://localhost:8081/usersadd/${commandInput}`);
+                        const isReal = await temp.json();
+    
+                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/${board.title}/addUser`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        alert(`User has been added.`);
+    
+                    }
+                    break;
+                case 5:
+                    // Check if commandInput is not in user list
+                    if (!users.includes(commandInput)) {
+                        alert(`User ${commandInput} doesn't exist in the list.`);
+                    } else {
+                        // Send a request to remove a user from the discussion board
+                        const temp = await fetch(`http://localhost:8081/usersadd/${commandInput}`);
+                        const isReal = await temp.json();
+    
+                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/removeUser`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        alert(`User has been removed.`);
+                    }
+                    break;
+                default:
+                    console.error('Invalid Command');
+                    return;
+            }
+    
+        } catch (error) {
+            console.error(`Error while ${inputValue}:`, error);
+        }
+    };
+
     function stringToColor(string) {
         let hash = 0;
         let i;
@@ -451,65 +383,25 @@ const DiscussionPage = () => {
                     <DialogTitle>Admin Controls</DialogTitle>
                     <DialogContent>
                     <Stack spacing={2}>
-                        <Button variant="contained" onClick={handlePopup1Open}>
+                        <Button variant="contained" onClick={() => handlePopupOpen(1)}>
                         Add Channel
                         </Button>
-                        <Button variant="contained" onClick={handlePopup2Open}>
+                        <Button variant="contained" onClick={() => handlePopupOpen(2)}>
                         Remove Channel
                         </Button>
                         <Button variant="contained" onClick={handlePopup3Open}>
                         Rename Channel
                         </Button>
-                        <Button variant="contained" onClick={handlePopup4Open}>
+                        <Button variant="contained" onClick={() => handlePopupOpen(4)}>
                         Add User
                         </Button>
-                        <Button variant="contained" onClick={handlePopup5Open}>
+                        <Button variant="contained" onClick={() => handlePopupOpen(5)}>
                         Remove User
                         </Button>
                     </Stack>
                     </DialogContent>
                     <DialogActions>
                     <Button onClick={handleClose} variant="contained">
-                        Close
-                    </Button>
-                    </DialogActions>
-                </Dialog>
-
-                <Dialog open={popup1Open} onClose={handlePopup1Close}>
-                    <DialogTitle>Popup 1 Title</DialogTitle>
-                    <DialogContent>
-                    <TextField
-                        label="Enter Text"
-                        variant="outlined"
-                        value={popup1Input}
-                        onChange={(e) => setPopup1Input(e.target.value)}
-                    />
-                    </DialogContent>
-                    <DialogActions>
-                    <Button onClick={handlePopup1Submit} variant="contained" color="primary">
-                        Submit
-                    </Button>
-                    <Button onClick={handlePopup1Close} variant="contained">
-                        Close
-                    </Button>
-                    </DialogActions>
-                </Dialog>
-
-                <Dialog open={popup2Open} onClose={handlePopup2Close}>
-                    <DialogTitle>Popup 2 Title</DialogTitle>
-                    <DialogContent>
-                    <TextField
-                        label="Enter Text"
-                        variant="outlined"
-                        value={popup2Input}
-                        onChange={(e) => setPopup2Input(e.target.value)}
-                    />
-                    </DialogContent>
-                    <DialogActions>
-                    <Button onClick={handlePopup2Submit} variant="contained" color="primary">
-                        Submit
-                    </Button>
-                    <Button onClick={handlePopup2Close} variant="contained">
                         Close
                     </Button>
                     </DialogActions>
@@ -541,46 +433,17 @@ const DiscussionPage = () => {
                     </DialogActions>
                 </Dialog>
 
-
-                <Dialog open={popup4Open} onClose={handlePopup4Close}>
-                    <DialogTitle>Popup 4 Title</DialogTitle>
-                    <DialogContent>
-                    <TextField
-                        label="Enter Text"
-                        variant="outlined"
-                        value={popup4Input}
-                        onChange={(e) => setPopup4Input(e.target.value)}
-                    />
-                    </DialogContent>
-                    <DialogActions>
-                    <Button onClick={handlePopup4Submit} variant="contained" color="primary">
-                        Submit
-                    </Button>
-                    <Button onClick={handlePopup4Close} variant="contained">
-                        Close
-                    </Button>
-                    </DialogActions>
-                </Dialog>
-
-                <Dialog open={popup5Open} onClose={handlePopup5Close}>
-                    <DialogTitle>Popup 5 Title</DialogTitle>
-                    <DialogContent>
-                    <TextField
-                        label="Enter Text"
-                        variant="outlined"
-                        value={popup5Input}
-                        onChange={(e) => setPopup5Input(e.target.value)}
-                    />
-                    </DialogContent>
-                    <DialogActions>
-                    <Button onClick={handlePopup5Submit} variant="contained" color="primary">
-                        Submit
-                    </Button>
-                    <Button onClick={handlePopup5Close} variant="contained">
-                        Close
-                    </Button>
-                    </DialogActions>
-                </Dialog>
+                {currentPopup !== null && (
+                <CustomDialog
+                    open={currentPopup !== null}  // Update this line
+                    handleClose={handlePopupClose}
+                    handleSubmit={() => submitHandle(currentPopup)}
+                    title={`Popup ${currentPopup} Title`}
+                    inputLabel="Enter Text"
+                    inputValue={commandInput}
+                    handleInputChange={setcommandInput}
+                />
+                )}
 
                 </Box>
             </Drawer>
