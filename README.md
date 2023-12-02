@@ -2,6 +2,8 @@
 
 ## Client
 run "npm i bcryptjs"
+run "npm install @mui/material @emotion/react @emotion/styled"
+run "npm install @material-ui/icons"
 
 ### public
 This folder will contain any images we want to include in our UI, along with the index.html file.
