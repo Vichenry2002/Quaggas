@@ -39,7 +39,7 @@ const AddUser = ({ discussionId, discussionTitle }) => {
             console.log(`Discussion added to user's discussions.`);
         } else {
             // Handle error response from the API
-            window.alert('Username does not exist.');
+            window.alert("User does not exist or is already in the discussion");
             console.error('Failed to add discussion to user:', addUserToDiscussionResponse.statusText);
         }
         

@@ -29,31 +29,42 @@ userRoutes.route("/user/:username/discussions").get(async function (req, respons
 // In your userRoutes file
 
 // Endpoint to add a discussion to a user's discussions
-// Endpoint to add a discussion to a user's discussions
 userRoutes.route("/user/:username/addDiscussion").put(async function (req, res) {
     let db_connect = dbo.getDb();
     const discussionId = req.body.discussionId;
     const title = req.body.discussionTitle; // Add title from the request body
 
     try {
+        // First, find the user and check if the discussion is already in their list
+        const user = await db_connect.collection("users").findOne({ name: req.params.username });
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        // Check if the discussion is already in the user's discussions list
+        const isDiscussionAlreadyAdded = user.discussions.some(discussion => discussion.discussionId === discussionId);
+        if (isDiscussionAlreadyAdded) {
+            return res.status(409).send("User is already in the discussion");
+        }
+
+        // If not, add the discussion to the user's discussions list
         const result = await db_connect.collection("users").updateOne(
-            { name: req.params.username }, // Use the username directly
-            { $push: { discussions: { discussionId, title } } } // Add the tuple to the discussions array
+            { name: req.params.username },
+            { $push: { discussions: { discussionId, title } } }
         );
 
         if (result.modifiedCount === 1) {
-            // User's discussions were updated successfully
             res.status(200).send("Discussion added successfully");
         } else {
-            // No user was found with the provided username
-            res.status(404).send("User not found");
+            // No modifications made to the user's discussions
+            res.status(400).send("Unable to add discussion");
         }
     } catch (err) {
-        // Handle any errors that occurred during the database update
         console.error("Error adding discussion to user:", err);
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 
 
