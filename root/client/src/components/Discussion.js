@@ -18,6 +18,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import SendIcon from '@mui/icons-material/Send';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 
 const drawerWidth = 300; //change this to percent scaling later
@@ -45,8 +46,9 @@ const DiscussionPage = () => {
     
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
+    const userID = "65625388872555cf4b716d2d";
     //const disccusionId = window.location.pathname;
-    const userID = sessionStorage.getItem("username");
+    //const userID = sessionStorage.getItem("username");
 
     useEffect(() => {
         fetchPage();
@@ -389,14 +391,20 @@ const DiscussionPage = () => {
           };
       }
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         const message = document.getElementById('send-message');
 
         if (message.value) {
-            //create post object 
-            //send to db
+            await fetch(`http://localhost:8081/channels/${board.channels[selectedIndex]}/${userID}/${message.value}/addPost`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
-            //empty message box
+            console.log(message.value);
+            fetchPage();
+            
             message.value = '';
         }
 
@@ -595,6 +603,12 @@ const DiscussionPage = () => {
                             </ListItemAvatar>
 
                             <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
+                            <IconButton
+                                sx={{paddingLeft: "2%", paddingTop: "1%"}}
+                                //onClick={posts_extra}
+                            >
+                                <MoreVertIcon></MoreVertIcon>
+                            </IconButton>
                         </ListItem>
                         <Divider />
                     </div>

@@ -26,7 +26,6 @@ discussionBoardRoutes.route("/discussions/:discussionID").get(async function (re
     }
 });
 
-
 // Add user to discussion board given userID and discussion board ID
 discussionBoardRoutes.route("/discussions/:discussionId/:userID/:title/addUser").post(function (req, response) {
     let db_connect = dbo.getDb();
@@ -227,6 +226,44 @@ discussionBoardRoutes.route("/usersadd/:userID").get(async function (req, respon
     } catch (err) {
         console.error("Error fetching users:", err);
         response.status(500).send("Internal Server Error");
+    }
+});
+
+// Add Post to discussion board
+discussionBoardRoutes.route("/channels/:channelID/:userID/:content/addPost").post(async function (req, res) {
+    let db_connect = dbo.getDb();
+    const channelID = req.params.channelID;
+    const d = new Date();
+    let text = d.toISOString();
+
+    let myobj = {
+        user_id: req.params.userID,
+        content: req.params.content,
+        pinned: "",
+        date: text
+    };
+    let obj;
+    try {
+        let result = await db_connect.collection("posts").insertOne(myobj);
+        res.status(201).json({ insertedId: result.insertedId });
+        obj = result.insertedId;
+    } catch (err) {
+        console.error("Error while inserting posts:", err);
+        res.status(500).send(err);
+    }
+
+
+    try {
+        // Update the discussion collection by pushing/adding the channelID to the channels list
+        db_connect.collection("channels").updateOne(
+            { _id: new ObjectId(channelID) }, 
+            { $push: { posts: obj } }
+        );
+
+        // Send a success response back
+    } catch (err) {
+        // If an error occurs, send an error response
+        console.error("Error while adding posts to channels:", err);
     }
 });
 
