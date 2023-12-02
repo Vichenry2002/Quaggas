@@ -30,6 +30,7 @@ const DiscussionPage = () => {
     const [admins, setAdmins] = React.useState([]);
     const [users, setUsers] = React.useState([])
     const [open, setOpen] = React.useState(false);
+
     const [popup1Open, setPopup1Open] = React.useState(false);
     const [popup2Open, setPopup2Open] = React.useState(false);
     const [popup3Open, setPopup3Open] = React.useState(false);
@@ -44,6 +45,9 @@ const DiscussionPage = () => {
     
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
+    //const disccusionId = window.location.pathname;
+    const userID = sessionStorage.getItem("username");
+
     useEffect(() => {
         fetchPage();
     }, []);
@@ -386,10 +390,14 @@ const DiscussionPage = () => {
       }
 
     const handleSendMessage = () => {
-        const message = document.getElementById("send-message");
+        const message = document.getElementById('send-message');
 
-        if (message) {
-            
+        if (message.value) {
+            //create post object 
+            //send to db
+
+            //empty message box
+            message.value = '';
         }
 
     };
@@ -574,15 +582,20 @@ const DiscussionPage = () => {
             sx={{ flexGrow: 1, p: 3, border: '2px solid red', height: "100vh", overflow: "hidden"}}
         >
             <Toolbar />
+            
             <Stack spacing={0}>
                 {posts[selectedIndex] && posts[selectedIndex].map((post, index) => (
                     <div>
-                        <ListItem
+                        <ListItem 
+                            alignItems="flex-start"
                             key = {index}
                         >
-                        {post.content}
-                        </ListItem>
+                            <ListItemAvatar>
+                                <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
+                            </ListItemAvatar>
 
+                            <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
+                        </ListItem>
                         <Divider />
                     </div>
                 ))}
@@ -606,12 +619,6 @@ const DiscussionPage = () => {
                 </IconButton>
                 
             </Box>
-
-            
-
-
-
-
         </Box>
         <Drawer
             sx={{
