@@ -12,11 +12,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Button from '@mui/material/Button';
-import { ListItemAvatar, Avatar, TextField, Stack } from '@mui/material';
+import { ListItemAvatar, Avatar, TextField, Stack, IconButton, Icon } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import SendIcon from '@mui/icons-material/Send';
 
 
 const drawerWidth = 300; //change this to percent scaling later
@@ -287,6 +288,7 @@ const DiscussionPage = () => {
             console.error("Error fetching discussion:", error);
         }
     };
+
     const fetchChannel = async (channel_id_list) => {
         try {
           const channelDataList = [];
@@ -358,6 +360,7 @@ const DiscussionPage = () => {
     const discussionPageClick = (event , index) => {
         setSelectedDiscussion(index);
     }
+
     function stringToColor(string) {
         let hash = 0;
         let i;
@@ -381,6 +384,16 @@ const DiscussionPage = () => {
             },
           };
       }
+
+    const handleSendMessage = () => {
+        const message = document.getElementById("send-message");
+
+        if (message) {
+            
+        }
+
+    };
+
     return (
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
@@ -575,12 +588,30 @@ const DiscussionPage = () => {
                 ))}
             </Stack>
 
-            <TextField 
-                id="send-message" 
-                label="Send a message" 
-                variant="outlined" 
+            <Box
                 sx={{position: "absolute", bottom: 0, boxSizing: "border-box", width: "66%", paddingBottom: "2vh"}}
-            />
+            >
+                <TextField 
+                    id="send-message" 
+                    label="Send a message" 
+                    variant="outlined" 
+                    sx={{width: "95%"}}
+                />    
+
+                <IconButton
+                    sx={{paddingLeft: "2%", paddingTop: "1%"}}
+                    onClick={handleSendMessage}
+                >
+                    <SendIcon></SendIcon>
+                </IconButton>
+                
+            </Box>
+
+            
+
+
+
+
         </Box>
         <Drawer
             sx={{
