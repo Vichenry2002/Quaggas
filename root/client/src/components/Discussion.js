@@ -558,8 +558,7 @@ const DiscussionPage = () => {
         <Box 
             component="main"
             fullwidth
-            anchorOrigin={{vertical: 'bottom'}}
-            sx={{ flexGrow: 1, p: 3, border: '2px solid red'}}
+            sx={{ flexGrow: 1, p: 3, border: '2px solid red', height: "100vh", overflow: "hidden"}}
         >
             <Toolbar />
             <Stack spacing={0}>
@@ -577,13 +576,10 @@ const DiscussionPage = () => {
             </Stack>
 
             <TextField 
-    
-    
-  
-                fullWidth
                 id="send-message" 
                 label="Send a message" 
                 variant="outlined" 
+                sx={{position: "absolute", bottom: 0, boxSizing: "border-box", width: "66%", paddingBottom: "2vh"}}
             />
         </Box>
         <Drawer
