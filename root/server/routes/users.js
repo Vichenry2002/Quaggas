@@ -4,6 +4,7 @@ const userRoutes = express.Router();
  
 const dbo = require("../db/conn");
 const {json} = require("express");
+const { ReturnDocument } = require("mongodb");
  
 const ObjectId = require("mongodb").ObjectId;
 
@@ -28,23 +29,32 @@ userRoutes.route("/user/:username/discussions").get(async function (req, respons
 // In your userRoutes file
 
 // Endpoint to add a discussion to a user's discussions
-userRoutes.route("/user/:username/addDiscussion").put(function (req, res) {
+// Endpoint to add a discussion to a user's discussions
+userRoutes.route("/user/:username/addDiscussion").put(async function (req, res) {
     let db_connect = dbo.getDb();
     const discussionId = req.body.discussionId;
     const title = req.body.discussionTitle; // Add title from the request body
 
-    db_connect.collection("users").updateOne(
-        { name: req.params.username }, // Use the username directly
-        { $push: { discussions: { discussionId, title } } }, // Add the tuple to the discussions array
-        function (err, result) {
-            if (err) {
-                res.status(500).send(err);
-            } else {
-                res.status(200).send("Discussion added successfully");
-            }
+    try {
+        const result = await db_connect.collection("users").updateOne(
+            { name: req.params.username }, // Use the username directly
+            { $push: { discussions: { discussionId, title } } } // Add the tuple to the discussions array
+        );
+
+        if (result.modifiedCount === 1) {
+            // User's discussions were updated successfully
+            res.status(200).send("Discussion added successfully");
+        } else {
+            // No user was found with the provided username
+            res.status(404).send("User not found");
         }
-    );
+    } catch (err) {
+        // Handle any errors that occurred during the database update
+        console.error("Error adding discussion to user:", err);
+        res.status(500).send("Internal Server Error");
+    }
 });
+
 
 
 //remove discussion from user db
@@ -65,6 +75,7 @@ userRoutes.route("/user/:userId/:discussionId/remove").post(async function (req,
         response.status(500).json({ error: err.message });
     }
 });
+
 
 
 

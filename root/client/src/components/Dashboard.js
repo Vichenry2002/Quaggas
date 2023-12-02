@@ -3,17 +3,48 @@ import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal'; // Import Modal from 'react-modal'
 import DiscussionsPopUp from './CreateDiscussion'; // Import your DiscussionsPopUp component
 import './Dashboard.css';
+import AddUser from './AddUser';
 
 Modal.setAppElement('#root'); // Set the app element for the modal for accessibility
 
 export default function UserDashboard() {
+    const [isAddUserPopupOpen, setIsAddUserPopupOpen] = useState(false);
+    const [selectedDiscussionId, setSelectedDiscussionId] = useState(null);
+    const [selectedDiscussionTitle, setSelectedDiscussionTitle] = useState(null);
+
+    const handleOpenAddUserPopup = (discussionId, discussionTitle) => {
+        setSelectedDiscussionId(discussionId);
+        setSelectedDiscussionTitle(discussionTitle);
+        setIsAddUserPopupOpen(true);
+    };
+
+
     const [userDiscussions, setUserDiscussions] = useState([]);
     const [isPopUpOpen, setPopUpOpen] = useState(false); // State for managing the pop-up
     const userId = sessionStorage.getItem("username"); // Replace with actual user ID (from auth or context)
     const navigate = useNavigate();
 
+    if (userId === "" || userId === null){
+        setTimeout(() => {
+            navigate("/");
+        }, 0);
+    }
+
     const navigateToDiscussion = (discussionId) => {
         navigate(`/discussion/${discussionId}`);
+    };
+
+    const checkAdminStatus = async (discussionId) => {
+        try {
+            const response = await fetch(`http://localhost:8081/discussion/${discussionId}/isAdmin/${userId}`);
+            const isAdminData = await response.json();
+
+            if (isAdminData) {
+                return isAdminData.isAdmin;
+            }
+        } catch (error) {
+            console.error("Error checking admin status:", error);
+        }
     };
 
     useEffect(() => {
@@ -26,7 +57,15 @@ export default function UserDashboard() {
             const userData = await response.json();
             
             if (userData && Array.isArray(userData)) {
-                setUserDiscussions(userData);
+                // Fetch the admin status for each discussion
+                const discussionsWithAdminStatus = await Promise.all(
+                    userData.map(async (discussion) => {
+                        const isAdmin = await checkAdminStatus(discussion.discussionId);
+                        return { ...discussion, isAdmin };
+                    })
+                );
+                setUserDiscussions(discussionsWithAdminStatus);
+                console.log(discussionsWithAdminStatus);
             } else {
                 console.error("Invalid or no data for user discussions");
                 setUserDiscussions([]);
@@ -36,19 +75,9 @@ export default function UserDashboard() {
         }
     };
 
-    const handleAddDiscussion = (discussionId) => {
-        console.log("Add to discussion", discussionId);
-        // Implement add to discussion logic here
-    };
-
     const handleLeaveDiscussion = async (discussionId) => {
         console.log("Leave discussion", discussionId);
         try {
-            // Assuming 'discussionTitle' is available in this scope, 
-            // if not, you need to ensure it is passed to this function or retrieved from state
-            const discussionTitle = "Some discussion title"; // Placeholder
-
-            console.log("TEST: " + discussionId);
     
             //delete from user list of discussions
             await fetch(`http://localhost:8081/user/${userId}/${discussionId}/remove`, {
@@ -79,6 +108,11 @@ export default function UserDashboard() {
         // Implement delete discussion logic here
     };
 
+    const handleLogout = () => {
+        sessionStorage.setItem("username", "");
+        navigate("/");
+    };
+
     const togglePopUp = () => {
         setPopUpOpen(!isPopUpOpen);
     };
@@ -86,9 +120,18 @@ export default function UserDashboard() {
     const addNewDiscussion = (newDiscussion) => {
         console.log("Adding new discussion:", newDiscussion);
         
+        try {
+            // Check if the current user is an admin for the newly added discussion
+            const isAdmin = checkAdminStatus(newDiscussion.discussionId);
     
-        // Update the state immediately with the new discussion
-        setUserDiscussions(prevDiscussions => [...prevDiscussions, newDiscussion]);
+            // Update the state immediately with the new discussion and its isAdmin property
+            setUserDiscussions((prevDiscussions) => [
+                ...prevDiscussions,
+                { ...newDiscussion, isAdmin },
+            ]);
+        } catch (error) {
+            console.error("Error checking admin status:", error);
+        }
     };
     
 
@@ -120,10 +163,15 @@ export default function UserDashboard() {
 
     return (
         <div className="dashboard-container">
+             <div className="user-info">
+                <span className="username">{userId}</span>
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
+            </div>
             <div className="dashboard-header">
                 <h1 className="dashboard-title">Welcome to your Dashboard</h1>
                 <button className="create-button" onClick={togglePopUp}>Create</button>
             </div>
+
             <ul className="discussion-list">
                 {userDiscussions && userDiscussions.map((discussion, index) => (
                     <li 
@@ -135,10 +183,16 @@ export default function UserDashboard() {
                     >
                         <span>{discussion.title}</span>
                         <div>
-                            <button className="button" onClick={(e) => {
-                                e.stopPropagation(); // Prevents click from bubbling up to the li element
-                                handleAddDiscussion(discussion.discussionId);
-                            }}>Add Users</button>
+                        <button
+                                className={`button ${!discussion.isAdmin ? 'disabled-button' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenAddUserPopup(discussion.discussionId, discussion.title);
+                                }}
+                                disabled={!discussion.isAdmin}
+                            >
+                                Add Users
+                            </button>
                             <button className="button" onClick={(e) => {
                                 e.stopPropagation(); // Prevents click from bubbling up to the li element
                                 handleAddChannelsDiscussion(discussion.discussionId);
@@ -163,6 +217,16 @@ export default function UserDashboard() {
                     
                     onRequestClose={togglePopUp} 
                     addNewDiscussion={addNewDiscussion}
+                />
+            </Modal>
+            <Modal
+                isOpen={isAddUserPopupOpen}
+                onRequestClose={() => setIsAddUserPopupOpen(false)}
+                style={customStyles}
+            >
+                <AddUser 
+                    discussionId={selectedDiscussionId}
+                    discussionTitle={selectedDiscussionTitle}
                 />
             </Modal>
         </div>

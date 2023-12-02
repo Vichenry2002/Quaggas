@@ -29,6 +29,53 @@ discussionRoutes.route("/discussions/add").post(async function (req, response) {
   }
 });
 
+// Add user to the user list of discussion
+discussionRoutes.route("/discussion/:discussionId/addUser/:userId").post(async function (req, response) {
+  let db_connect = dbo.getDb();
+  const discussionId = req.params.discussionId;
+  const userId = req.params.userId;
+
+  try {
+      // Update the discussion document by pushing the userId to the users array
+      await db_connect.collection("discussions").updateOne(
+          { _id: new ObjectId(discussionId) }, 
+          { $addToSet: { users: userId } } // Use $addToSet to prevent duplicate entries
+      );
+
+      // Send a success response back
+      response.status(200).json({ message: "User added to discussion" });
+  } catch (err) {
+      // If an error occurs, send an error response
+      console.error("Error while updating discussion:", err);
+      response.status(500).json({ error: err.message });
+  }
+});
+
+// Add user to the admin list of discussion
+discussionRoutes.route("/discussion/:discussionId/addAdmin/:userId").post(async function (req, response) {
+  let db_connect = dbo.getDb();
+  const discussionId = req.params.discussionId;
+  const userId = req.params.userId;
+  console.log("HeLLO");
+
+  try {
+      // Update the discussion document by pushing the userId to the users array
+      await db_connect.collection("discussions").updateOne(
+          { _id: new ObjectId(discussionId) }, 
+          { $addToSet: { admins: userId } } // Use $addToSet to prevent duplicate entries
+      );
+
+      // Send a success response back
+      response.status(200).json({ message: "User added to discussion" });
+  } catch (err) {
+      // If an error occurs, send an error response
+      console.error("Error while updating discussion:", err);
+      response.status(500).json({ error: err.message });
+  }
+});
+
+
+
 //remove user from admin+user list of discussion
 discussionRoutes.route("/discussion/:discussionId/:userId/remove").post(async function (req, response) {
     let db_connect = dbo.getDb();
@@ -81,6 +128,33 @@ discussionRoutes.route("/channel/add").post(async function (req, response) {
       });
     }
   });
+
+//is admin
+discussionRoutes.route("/discussion/:discussionId/isAdmin/:username").get(async function (req, response) {
+  let db_connect = dbo.getDb();
+  const discussionId = req.params.discussionId;
+  const username = req.params.username;
+  console.log(discussionId);
+
+  try {
+      // Retrieve the discussion document
+      const discussion = await db_connect.collection("discussions").findOne({ _id: new ObjectId(discussionId) });
+
+      if (!discussion) {
+          response.status(404).json({ error: "Discussion not found" });
+          return;
+      }
+
+      // Check if the provided username is in the admins list
+      const isAdmin = discussion.admins.includes(username);
+      response.status(200).json({ isAdmin });
+  } catch (err) {
+      // If an error occurs, send an error response
+      console.error("Error while checking admin status:", err);
+      response.status(500).json({ error: err.message });
+  }
+});
+
   
 
 
