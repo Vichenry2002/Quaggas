@@ -93,7 +93,7 @@ discussionBoardRoutes.route("/discussions/:discussionId/:channelName/addChannel"
     try {
         let result = await db_connect.collection("channels").insertOne(myobj);
         res.status(201).json({ insertedId: result.insertedId });
-        obj = result.insertedId;
+        obj = result.insertedId.toString();
     } catch (err) {
         console.error("Error while inserting channels:", err);
         res.status(500).send(err);

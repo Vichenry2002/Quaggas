@@ -52,7 +52,7 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
                 ...form,
                 users: updatedUsers,
                 admins: updatedAdmins,
-                channels: channelId
+                channels: [channelId]
             };
 
             // Adding discussion to discussions collection

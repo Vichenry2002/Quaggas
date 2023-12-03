@@ -4,11 +4,13 @@ import Modal from 'react-modal'; // Import Modal from 'react-modal'
 import DiscussionsPopUp from './CreateDiscussion'; // Import your DiscussionsPopUp component
 import './Dashboard.css';
 import AddUser from './AddUser';
+import AddChannel from './AddChannel';
 
 Modal.setAppElement('#root'); // Set the app element for the modal for accessibility
 
 export default function UserDashboard() {
     const [isAddUserPopupOpen, setIsAddUserPopupOpen] = useState(false);
+    const [isAddChannelPopupOpen, setIsAddChannelPopupOpen] = useState(false);
     const [selectedDiscussionId, setSelectedDiscussionId] = useState(null);
     const [selectedDiscussionTitle, setSelectedDiscussionTitle] = useState(null);
 
@@ -16,6 +18,12 @@ export default function UserDashboard() {
         setSelectedDiscussionId(discussionId);
         setSelectedDiscussionTitle(discussionTitle);
         setIsAddUserPopupOpen(true);
+    };
+
+    const handleOpenAddChannelPopup = (discussionId, discussionTitle) => {
+        setSelectedDiscussionId(discussionId);
+        setSelectedDiscussionTitle(discussionTitle);
+        setIsAddChannelPopupOpen(true);
     };
 
 
@@ -183,7 +191,7 @@ export default function UserDashboard() {
                     >
                         <span>{discussion.title}</span>
                         <div>
-                        <button
+                            <button
                                 className={`button ${!discussion.isAdmin ? 'disabled-button' : ''}`}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -191,12 +199,18 @@ export default function UserDashboard() {
                                 }}
                                 disabled={!discussion.isAdmin}
                             >
-                                Add Users
+                                Add User
                             </button>
-                            <button className="button" onClick={(e) => {
-                                e.stopPropagation(); // Prevents click from bubbling up to the li element
-                                handleAddChannelsDiscussion(discussion.discussionId);
-                            }}>Add Channels</button>
+                            <button
+                                className={`button ${!discussion.isAdmin ? 'disabled-button' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenAddChannelPopup(discussion.discussionId, discussion.title);
+                                }}
+                                disabled={!discussion.isAdmin}
+                            >
+                                Add Channel
+                            </button>
                             <button className="button" onClick={(e) => {
                                 e.stopPropagation(); // Prevents click from bubbling up to the li element
                                 handleLeaveDiscussion(discussion.discussionId);
@@ -214,7 +228,6 @@ export default function UserDashboard() {
             >
                 <DiscussionsPopUp 
                     isOpen={isPopUpOpen} 
-                    
                     onRequestClose={togglePopUp} 
                     addNewDiscussion={addNewDiscussion}
                 />
@@ -229,6 +242,18 @@ export default function UserDashboard() {
                     discussionTitle={selectedDiscussionTitle}
                 />
             </Modal>
+            <Modal
+                isOpen={isAddChannelPopupOpen}
+                onRequestClose={() => setIsAddChannelPopupOpen(false)}
+                style={customStyles}
+            >
+                <AddChannel
+                    discussionId={selectedDiscussionId}
+                    discussionTitle={selectedDiscussionTitle}
+                />
+            </Modal>
+
+            
         </div>
     );
 }
