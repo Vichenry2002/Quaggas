@@ -39,6 +39,8 @@ const DiscussionPage = () => {
     const [admins, setAdmins] = React.useState([]);
     const [users, setUsers] = React.useState([])
     const [open, setOpen] = React.useState(false);
+    const [isAdmin, setIsAdmin] = React.useState(false);
+
 
     const [newPopupOpen, setNewPopupOpen] = React.useState(false);
 
@@ -75,6 +77,10 @@ const DiscussionPage = () => {
         setAdmins(admins_list);
         setUsers(users_list);
         console.log(posts_list);
+
+        const userIsAdmin = discussion_board.admins.includes(userID);
+        console.log(userIsAdmin)
+        setIsAdmin(userIsAdmin);
     }
 
     const handleOpen = () => {
@@ -545,10 +551,11 @@ const DiscussionPage = () => {
                         ))}
                     </List>
                     <Divider />
+                    {isAdmin && (
                         <Button variant="contained" onClick={handleOpen}>
                             Admin Settings
                         </Button>
-
+                    )}
                         <Dialog open={open} onClose={handleClose}>
                         <DialogTitle>Admin Controls</DialogTitle>
                         <DialogContent>
