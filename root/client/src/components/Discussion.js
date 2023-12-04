@@ -19,8 +19,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import SendIcon from '@mui/icons-material/Send';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PushPinIcon from '@mui/icons-material/PushPinRounded';
+import SearchIcon from '@mui/icons-material/Search';
 import CustomDialog from './dialogComponents';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
+import Modal from 'react-modal'; // Import Modal from 'react-modal'
 
 
 const drawerWidth = 300; //change this to percent scaling later
@@ -41,6 +46,12 @@ const DiscussionPage = () => {
     const [popup3Input1, setPopup3Input1] = React.useState('');
     const [popup3Input2, setPopup3Input2] = React.useState('');
     const [commandInput, setcommandInput] = React.useState('');
+
+    const [searchPopup, setSearchPopup] = React.useState(false);
+    const [searchResults, setSearchResults] = React.useState([]);
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const postMenuOpen = Boolean(anchorEl);
     
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
@@ -51,6 +62,7 @@ const DiscussionPage = () => {
     useEffect(() => {
         fetchPage();
     }, []);
+
     const fetchPage = async () => {
         const discussion_board = await fetchDiscussionBoard();
         const admins_list = await fetchAdmins(discussion_board.admins);
@@ -105,10 +117,12 @@ const DiscussionPage = () => {
         setNewPopupOpen(false);
         // Optionally, you can clear input or perform other actions
     };
-    
-    
-    
 
+    const handleSearchClose = () => {
+        setSearchPopup(false);
+        // Optionally, you can clear input or perform other actions
+    };
+    
     const handlePopup3Submit = async () => {
         try {
             // Check if popup1Input is already in channel_list_name
@@ -224,6 +238,20 @@ const DiscussionPage = () => {
     //changes the selected discussion page 
     const discussionPageClick = (event , index) => {
         setSelectedDiscussion(index);
+    };
+
+    const handlePostClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handlePostClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handlePostPin = (event, index) => {
+        const post = posts[selectedIndex][index];
+
+        
     }
 
     const submitHandle = async (inputValue) => {
@@ -347,240 +375,356 @@ const DiscussionPage = () => {
             
             message.value = '';
         }
+    };
 
+    const handleSearch = () => {
+        const search = document.getElementById('search-message');
+        var found = [];
+
+        if (search.value) {
+            const channel_posts = posts[selectedIndex];
+            console.log(search.value);
+
+            channel_posts.forEach((post) => {
+                if (post.content.includes(search.value)) {
+                    found.push(post);
+                }
+            });
+
+            setSearchResults(found);
+            setSearchPopup(true);
+
+            //console.log(found);
+
+            search.value = '';
+        }
+    };
+
+    const customStyles = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            width: '50%', // Adjust the width as needed
+            border: '1px solid #ccc',
+            borderRadius: '10px',
+            padding: '20px',
+            boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
+            background: '#fff'
+        },
+        overlay: {
+            backgroundColor: 'rgba(0,0,0,0.5)' // Semi-transparent overlay
+        }
     };
 
     return (
         <Box sx={{ display: 'flex' }}>
-          <CssBaseline />
-          <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-            <Toolbar>
-              <Typography variant="h6" noWrap component="div">
-                {board.title}
-              </Typography>
-            </Toolbar>
-          </AppBar>
+            <CssBaseline />
+
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <Toolbar>
+                    <Typography 
+                        variant="h6" 
+                        noWrap
+                        component="div"  
+                        sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block'}}}
+                    >
+                        {board.title}
+                    </Typography>
+
+                    <div 
+                        className="search-bar-features"
+                    >   
+                        <IconButton
+                            sx={{
+                                paddingTop: '1.3vh',
+                                paddingRight: '1vw'
+                            }}
+                            onClick={handleNewPopupOpen}
+                        >
+                            <PushPinIcon />
+                        </IconButton>
+
+                        <TextField 
+                            id="search-message" 
+                            label="Search"
+                            variant="outlined"
+                            sx={{
+                                position: 'relative',
+                                backgroundColor: 'white',
+                                marginLeft: 0,
+                                borderRadius: '5px'
+                            }}
+                        /> 
+
+                        <IconButton
+                            onClick={handleSearch}
+                            sx={{
+                                paddingTop: '1.3vh',
+                                paddingLeft: '1vw'
+                            }}
+                        >
+                            <SearchIcon />
+                        </IconButton>
+                    </div>
+                </Toolbar>
+            </AppBar>
+
+            
+
+
+                <Drawer
+                    variant="permanent"
+                    sx={{
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+                    }}
+                >
+                    <Toolbar />
+                    <Box height="100vh" sx={{ overflow: 'auto' }}>
+                    <List>
+                        {channel.map((channelName, index) => (
+                            <ListItemButton 
+                            key={index}
+                            disablepadding
+                            selected={selectedIndex === index}
+                            onClick={(event) => discussionPageClick(event, index)}
+                            >
+                            {channelName}
+                            </ListItemButton>
+                        ))}
+                    </List>
+                    <Divider />
+                        <Button variant="contained" onClick={handleOpen}>
+                            Admin Settings
+                        </Button>
+
+                        <Dialog open={open} onClose={handleClose}>
+                        <DialogTitle>Admin Controls</DialogTitle>
+                        <DialogContent>
+                        <Stack spacing={2}>
+                            <Button variant="contained" onClick={() => handlePopupOpen(1)}>
+                            Add Channel
+                            </Button>
+                            <Button variant="contained" onClick={() => handlePopupOpen(2)}>
+                            Remove Channel
+                            </Button>
+                            <Button variant="contained" onClick={handlePopup3Open}>
+                            Rename Channel
+                            </Button>
+                            <Button variant="contained" onClick={() => handlePopupOpen(4)}>
+                            Add User
+                            </Button>
+                            <Button variant="contained" onClick={() => handlePopupOpen(5)}>
+                            Remove User
+                            </Button>
+                        </Stack>
+                        </DialogContent>
+                        <DialogActions>
+                        <Button onClick={handleClose} variant="contained">
+                            Close
+                        </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog open={popup3Open} onClose={handlePopup3Close}>
+                        <DialogTitle>Popup 3 Title</DialogTitle>
+                        <DialogContent>
+                            <TextField
+                                label="Enter Text 1"
+                                variant="outlined"
+                                value={popup3Input1}
+                                onChange={(e) => setPopup3Input1(e.target.value)}
+                            />
+                            <TextField
+                                label="Enter Text 2"
+                                variant="outlined"
+                                value={popup3Input2}
+                                onChange={(e) => setPopup3Input2(e.target.value)}
+                            />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handlePopup3Submit} variant="contained" color="primary">
+                                Submit
+                            </Button>
+                            <Button onClick={handlePopup3Close} variant="contained">
+                                Close
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    {currentPopup !== null && (
+                    <CustomDialog
+                        open={currentPopup !== null}  // Update this line
+                        handleClose={handlePopupClose}
+                        handleSubmit={() => submitHandle(currentPopup)}
+                        title={`Popup ${currentPopup} Title`}
+                        inputLabel="Enter Text"
+                        inputValue={commandInput}
+                        handleInputChange={setcommandInput}
+                    />
+                    )}
+
+                    <Dialog open={newPopupOpen} onClose={handleNewPopupClose}>
+                        <DialogTitle>Pinned messages</DialogTitle>
+                        <DialogContent>
+                            <Stack spacing={0}>
+                                {posts[selectedIndex] &&
+                                    posts[selectedIndex].filter((post) => post.pinned).map((post, index) => (
+                                        <div key={index}>
+                                            <ListItem alignItems="flex-start">
+                                                <ListItemAvatar>
+                                                    <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
+                                                </ListItemAvatar>
+                                                <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
+                                            </ListItem>
+                                            <Divider />
+                                        </div>
+                                    ))}
+                            </Stack>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleNewPopupClose} variant="contained">
+                                Close
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog open={searchPopup} onClose={handleSearchClose}>
+                        <DialogTitle>Search Results</DialogTitle>
+                        <DialogContent>
+                            <Stack spacing={0}>
+                                {searchResults && searchResults.map((post, index) => (
+                                    <div key={index}>
+                                        <ListItem alignItems="flex-start">
+                                        <ListItemAvatar>
+                                            <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
+                                        </ListItemAvatar>
+                                        <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
+                                    </ListItem>
+                                    <Divider />
+                                    </div>
+                                ))}
+                            </Stack>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleSearchClose} variant="contained">
+                                Close
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+
+                    </Box>
+                </Drawer>
+            <Box 
+                component="main"
+                fullwidth
+                sx={{ flexGrow: 1, p: 3, border: '2px solid red', height: "100vh", overflow: "hidden"}}
+            >
+                <Toolbar />
+                
+                <Stack spacing={0}>
+                    {posts[selectedIndex] && posts[selectedIndex].map((post, index) => (
+                        <div>
+                            <ListItem 
+                                alignItems="flex-start"
+                                key = {index}
+                            >
+                                <ListItemAvatar>
+                                    <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
+                                </ListItemAvatar>
+
+                                <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
+                                <IconButton
+                                    sx={{paddingLeft: "2%", paddingTop: "1%"}}
+                                    onClick={handlePostClick}
+                                >
+                                    <MoreVertIcon></MoreVertIcon>
+                                </IconButton>
+                                <Menu
+                                    id="post-menu"
+                                    anchorEl={anchorEl}
+                                    open={postMenuOpen}
+                                    onClose={handlePostClose}
+                                    MenuListProps={{
+                                    'aria-labelledby': 'basic-button',
+                                    }}
+                                >
+                                    <MenuItem onClick={handlePostClose}>Pin Post</MenuItem>
+                                    <MenuItem onClick={handlePostClose}>Delete Post</MenuItem>
+                                </Menu>
+                            </ListItem>
+                            <Divider />
+                        </div>
+                    ))}
+                </Stack>
+
+                <Box
+                    sx={{position: "absolute", bottom: 0, boxSizing: "border-box", width: "66%", paddingBottom: "2vh"}}
+                >
+                    <TextField 
+                        id="send-message" 
+                        label="Send a message" 
+                        variant="outlined" 
+                        sx={{width: "95%"}}
+                    />    
+
+                    <IconButton
+                        sx={{paddingLeft: "2%", paddingTop: "1%"}}
+                        onClick={handleSendMessage}
+                    >
+                        <SendIcon></SendIcon>
+                    </IconButton>
+                    
+                </Box>
+            </Box>
             <Drawer
-                variant="permanent"
                 sx={{
                 width: drawerWidth,
                 flexShrink: 0,
-                [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+                '& .MuiDrawer-paper': {
+                    width: drawerWidth,
+                    boxSizing: 'border-box',
+                },
                 }}
+                variant="permanent"
+                anchor="right"
             >
                 <Toolbar />
-                <Box height="100vh" sx={{ overflow: 'auto' }}>
-                <List>
-                    {channel.map((channelName, index) => (
-                        <ListItemButton 
-                        key={index}
-                        disablepadding
-                        selected={selectedIndex === index}
-                        onClick={(event) => discussionPageClick(event, index)}
-                        >
-                        {channelName}
-                        </ListItemButton>
-                    ))}
-                </List>
-                <Divider />
-                    <Button variant="contained" onClick={handleOpen}>
-                        Admin Settings
-                    </Button>
-
-                    <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle>Admin Controls</DialogTitle>
-                    <DialogContent>
-                    <Stack spacing={2}>
-                        <Button variant="contained" onClick={() => handlePopupOpen(1)}>
-                        Add Channel
-                        </Button>
-                        <Button variant="contained" onClick={() => handlePopupOpen(2)}>
-                        Remove Channel
-                        </Button>
-                        <Button variant="contained" onClick={handlePopup3Open}>
-                        Rename Channel
-                        </Button>
-                        <Button variant="contained" onClick={() => handlePopupOpen(4)}>
-                        Add User
-                        </Button>
-                        <Button variant="contained" onClick={() => handlePopupOpen(5)}>
-                        Remove User
-                        </Button>
-                    </Stack>
-                    </DialogContent>
-                    <DialogActions>
-                    <Button onClick={handleClose} variant="contained">
-                        Close
-                    </Button>
-                    </DialogActions>
-                </Dialog>
-
-                <Dialog open={popup3Open} onClose={handlePopup3Close}>
-                    <DialogTitle>Popup 3 Title</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            label="Enter Text 1"
-                            variant="outlined"
-                            value={popup3Input1}
-                            onChange={(e) => setPopup3Input1(e.target.value)}
-                        />
-                        <TextField
-                            label="Enter Text 2"
-                            variant="outlined"
-                            value={popup3Input2}
-                            onChange={(e) => setPopup3Input2(e.target.value)}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handlePopup3Submit} variant="contained" color="primary">
-                            Submit
-                        </Button>
-                        <Button onClick={handlePopup3Close} variant="contained">
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
-                {currentPopup !== null && (
-                <CustomDialog
-                    open={currentPopup !== null}  // Update this line
-                    handleClose={handlePopupClose}
-                    handleSubmit={() => submitHandle(currentPopup)}
-                    title={`Popup ${currentPopup} Title`}
-                    inputLabel="Enter Text"
-                    inputValue={commandInput}
-                    handleInputChange={setcommandInput}
-                />
-                )}
-
-                <Button variant="contained" onClick={handleNewPopupOpen}>
-                    New Popup
-                </Button>
-
-                <Dialog open={newPopupOpen} onClose={handleNewPopupClose}>
-                    <DialogTitle>Pinned messages</DialogTitle>
-                    <DialogContent>
-                        <Stack spacing={0}>
-                            {posts[selectedIndex] &&
-                                posts[selectedIndex].filter((post) => post.pinned).map((post, index) => (
-                                    <div key={index}>
-                                        <ListItem alignItems="flex-start">
-                                            <ListItemAvatar>
-                                                <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
-                                            </ListItemAvatar>
-                                            <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
-                                            <IconButton sx={{ paddingLeft: '2%', paddingTop: '1%' }}>
-                                                <MoreVertIcon></MoreVertIcon>
-                                            </IconButton>
-                                        </ListItem>
-                                        <Divider />
-                                    </div>
-                                ))}
-                        </Stack>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleNewPopupClose} variant="contained">
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
-
-
-                </Box>
-            </Drawer>
-        <Box 
-            component="main"
-            fullwidth
-            sx={{ flexGrow: 1, p: 3, border: '2px solid red', height: "100vh", overflow: "hidden"}}
-        >
-            <Toolbar />
-            
-            <Stack spacing={0}>
-                {posts[selectedIndex] && posts[selectedIndex].map((post, index) => (
-                    <div>
-                        <ListItem 
-                            alignItems="flex-start"
-                            key = {index}
-                        >
-                            <ListItemAvatar>
-                                <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
-                            </ListItemAvatar>
-
-                            <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
-                            <IconButton
-                                sx={{paddingLeft: "2%", paddingTop: "1%"}}
-                                //onClick={posts_extra}
-                            >
-                                <MoreVertIcon></MoreVertIcon>
-                            </IconButton>
-                        </ListItem>
-                        <Divider />
-                    </div>
-                ))}
-            </Stack>
-
-            <Box
-                sx={{position: "absolute", bottom: 0, boxSizing: "border-box", width: "66%", paddingBottom: "2vh"}}
-            >
-                <TextField 
-                    id="send-message" 
-                    label="Send a message" 
-                    variant="outlined" 
-                    sx={{width: "95%"}}
-                />    
-
-                <IconButton
-                    sx={{paddingLeft: "2%", paddingTop: "1%"}}
-                    onClick={handleSendMessage}
-                >
-                    <SendIcon></SendIcon>
-                </IconButton>
-                
-            </Box>
-        </Box>
-        <Drawer
-            sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-                width: drawerWidth,
-                boxSizing: 'border-box',
-            },
-            }}
-            variant="permanent"
-            anchor="right"
-        >
-            <Toolbar />
-            <Divider />
-            <List>
-                {admins && admins.map((admin, index) => (
-                    <ListItem 
-                        alignItems="flex-start"
-                        key = {index}
-                    >
-                    <ListItemAvatar>
-                        <Avatar {...stringToColor(admin)}>{admin.charAt(0)}</Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={admin} secondary='Admin'></ListItemText>
-                    </ListItem>
-                ))}
-            </List>
                 <Divider />
                 <List>
-                    {users && users.map((user, index) => (
+                    {admins && admins.map((admin, index) => (
                         <ListItem 
                             alignItems="flex-start"
                             key = {index}
                         >
                         <ListItemAvatar>
-                            <Avatar {...stringToColor(user)}>{user.charAt(0)}</Avatar>
+                            <Avatar {...stringToColor(admin)}>{admin.charAt(0)}</Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary={user} secondary='User'></ListItemText>
+                        <ListItemText primary={admin} secondary='Admin'></ListItemText>
                         </ListItem>
                     ))}
                 </List>
-        </Drawer>
+                    <Divider />
+                    <List>
+                        {users && users.map((user, index) => (
+                            <ListItem 
+                                alignItems="flex-start"
+                                key = {index}
+                            >
+                            <ListItemAvatar>
+                                <Avatar {...stringToColor(user)}>{user.charAt(0)}</Avatar>
+                            </ListItemAvatar>
+                            <ListItemText primary={user} secondary='User'></ListItemText>
+                            </ListItem>
+                        ))}
+                    </List>
+            </Drawer>
         </Box>
       );
 };
