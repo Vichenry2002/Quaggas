@@ -34,13 +34,10 @@ const DiscussionPage = () => {
     const [users, setUsers] = React.useState([])
     const [open, setOpen] = React.useState(false);
 
-    const [popup1Open, setPopup1Open] = React.useState(false);
-    const [popup2Open, setPopup2Open] = React.useState(false);
-    const [popup3Open, setPopup3Open] = React.useState(false);
-    const [popup4Open, setPopup4Open] = React.useState(false);
-    const [popup5Open, setPopup5Open] = React.useState(false);
-    const [currentPopup, setCurrentPopup] = React.useState(null);
+    const [newPopupOpen, setNewPopupOpen] = React.useState(false);
 
+    const [popup3Open, setPopup3Open] = React.useState(false);
+    const [currentPopup, setCurrentPopup] = React.useState(null);
     const [popup3Input1, setPopup3Input1] = React.useState('');
     const [popup3Input2, setPopup3Input2] = React.useState('');
     const [commandInput, setcommandInput] = React.useState('');
@@ -99,6 +96,17 @@ const DiscussionPage = () => {
 
         // Optionally, you can clear input or perform other actions
       };
+
+      const handleNewPopupOpen = () => {
+        setNewPopupOpen(true);
+    };
+
+    const handleNewPopupClose = () => {
+        setNewPopupOpen(false);
+        // Optionally, you can clear input or perform other actions
+    };
+    
+    
     
 
     const handlePopup3Submit = async () => {
@@ -444,6 +452,40 @@ const DiscussionPage = () => {
                     handleInputChange={setcommandInput}
                 />
                 )}
+
+                <Button variant="contained" onClick={handleNewPopupOpen}>
+                    New Popup
+                </Button>
+
+                <Dialog open={newPopupOpen} onClose={handleNewPopupClose}>
+                    <DialogTitle>Pinned messages</DialogTitle>
+                    <DialogContent>
+                        <Stack spacing={0}>
+                            {posts[selectedIndex] &&
+                                posts[selectedIndex].filter((post) => post.pinned).map((post, index) => (
+                                    <div key={index}>
+                                        <ListItem alignItems="flex-start">
+                                            <ListItemAvatar>
+                                                <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
+                                            </ListItemAvatar>
+                                            <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
+                                            <IconButton sx={{ paddingLeft: '2%', paddingTop: '1%' }}>
+                                                <MoreVertIcon></MoreVertIcon>
+                                            </IconButton>
+                                        </ListItem>
+                                        <Divider />
+                                    </div>
+                                ))}
+                        </Stack>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleNewPopupClose} variant="contained">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+
 
                 </Box>
             </Drawer>
