@@ -254,7 +254,7 @@ discussionBoardRoutes.route("/channels/:channelID/:userID/:content/addPost").pos
 
 
     try {
-        // Update the discussion collection by pushing/adding the channelID to the channels list
+        // Update the channels collection by pushing/adding the posts to the posts list
         db_connect.collection("channels").updateOne(
             { _id: new ObjectId(channelID) }, 
             { $push: { posts: obj } }
@@ -267,6 +267,60 @@ discussionBoardRoutes.route("/channels/:channelID/:userID/:content/addPost").pos
     }
 });
 
+// Delete Post to discussion board
+discussionBoardRoutes.route("/channels/:channelID/:postID/removePost").post(async function (req, res) {
+    let db_connect = dbo.getDb();
+    const channelID = req.params.channelID;
+    const postID = req.params.postID;
+    try {
+        // Update the channels collection by removing the posts from the posts list
+        db_connect.collection("channels").updateOne(
+            { _id: new ObjectId(channelID) }, 
+            { $pull: { posts: new ObjectId(postID) } }
+        );
+
+        // Send a success response back
+    } catch (err) {
+        // If an error occurs, send an error response
+        console.error("Error while removing posts from channels:", err);
+    }
+});
+
+// Pin Post to discussion board
+discussionBoardRoutes.route("/posts/:postID/pin").post(async function (req, res) {
+    let db_connect = dbo.getDb();
+    const postID = req.params.postID;
+    try {
+        // Update the posts collection by changing pinned status
+        db_connect.collection("posts").updateOne(
+            { _id: new ObjectId(postID) }, 
+            { $set: { pinned: true } }
+        );
+
+        // Send a success response back
+    } catch (err) {
+        // If an error occurs, send an error response
+        console.error("Error while pinning posts to channels:", err);
+    }
+});
+
+// Pin Post to discussion board
+discussionBoardRoutes.route("/posts/:postID/unpin").post(async function (req, res) {
+    let db_connect = dbo.getDb();
+    const postID = req.params.postID;
+    try {
+        // Update the posts collection by changing pinned status
+        db_connect.collection("posts").updateOne(
+            { _id: new ObjectId(postID) }, 
+            { $set: { pinned: true } }
+        );
+
+        // Send a success response back
+    } catch (err) {
+        // If an error occurs, send an error response
+        console.error("Error while pinning posts to channels:", err);
+    }
+});
 
 
 module.exports = discussionBoardRoutes;
