@@ -312,7 +312,7 @@ discussionBoardRoutes.route("/posts/:postID/unpin").post(async function (req, re
         // Update the posts collection by changing pinned status
         db_connect.collection("posts").updateOne(
             { _id: new ObjectId(postID) }, 
-            { $set: { pinned: true } }
+            { $set: { pinned: false } }
         );
 
         // Send a success response back

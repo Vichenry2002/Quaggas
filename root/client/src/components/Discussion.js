@@ -34,6 +34,7 @@ const DiscussionPage = () => {
     const [selectedIndex, setSelectedDiscussion] = React.useState(0);
     const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
     const [channel, setChannel] = React.useState([]);
+    const [channelList, setChannelList] = React.useState([]);
     const [posts, setPosts] = React.useState([]);
     const [admins, setAdmins] = React.useState([]);
     const [users, setUsers] = React.useState([])
@@ -51,8 +52,6 @@ const DiscussionPage = () => {
     const [searchResults, setSearchResults] = React.useState([]);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const postMenuOpen = Boolean(anchorEl);
-    
     //test constant discussion, to be changed later
     const discussionId = "6562539e872555cf4b716d2e";
     const userID = "65625388872555cf4b716d2d";
@@ -70,11 +69,12 @@ const DiscussionPage = () => {
         const channel_list = await fetchChannel(discussion_board.channels)
         const channel_list_name = fetchChannelnames(channel_list)
         const posts_list = fetchPosts(channel_list)
-        setChannel(channel_list_name)
-        setPosts(posts_list)
-        setAdmins(admins_list)
-        setUsers(users_list)
-        console.log(posts_list)
+        setChannel(channel_list_name);
+        setChannelList(channel_list);
+        setPosts(posts_list);
+        setAdmins(admins_list);
+        setUsers(users_list);
+        console.log(posts_list);
     }
 
     const handleOpen = () => {
@@ -240,18 +240,64 @@ const DiscussionPage = () => {
         setSelectedDiscussion(index);
     };
 
-    const handlePostClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handlePostClick = (event, index) => {
+        setAnchorEl({[index]: event.currentTarget});
     };
 
     const handlePostClose = () => {
         setAnchorEl(null);
     };
 
-    const handlePostPin = (event, index) => {
+    const handlePostPin = async (event, index) => {
         const post = posts[selectedIndex][index];
+        post.pinned = true;
+        const post_id = post._id;
 
-        
+        console.log(post.content);
+
+        await fetch(`http://localhost:8081/posts/${post_id}/pin`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        handlePostClose();
+    }
+
+    const handlePostUnPin = async (event, index) => {
+        const post = posts[selectedIndex][index];
+        post.pinned = false;
+        const post_id = post._id;
+
+        console.log(post.content);
+
+        await fetch(`http://localhost:8081/posts/${post_id}/unpin`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        handlePostClose();
+    }
+
+    const handlePostDelete = async (event, index) => {
+        const post = posts[selectedIndex][index];
+        const post_id = post._id;
+        const channel_id = channelList[selectedIndex].channel._id;
+
+        posts[selectedIndex].splice(index, 1);
+
+        await fetch(`http://localhost:8081/channels/${channel_id}/${post_id}/removePost`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+
+        handlePostClose();
     }
 
     const submitHandle = async (inputValue) => {
@@ -642,21 +688,27 @@ const DiscussionPage = () => {
                                 <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
                                 <IconButton
                                     sx={{paddingLeft: "2%", paddingTop: "1%"}}
-                                    onClick={handlePostClick}
+                                    onClick={event => {
+                                        handlePostClick(event, index);
+                                    }}
                                 >
                                     <MoreVertIcon></MoreVertIcon>
                                 </IconButton>
                                 <Menu
                                     id="post-menu"
-                                    anchorEl={anchorEl}
-                                    open={postMenuOpen}
+                                    anchorEl={anchorEl && anchorEl[index]}
+                                    open={
+                                        Boolean(anchorEl && anchorEl[index])
+                                    }
+                                    key={index}
                                     onClose={handlePostClose}
                                     MenuListProps={{
                                     'aria-labelledby': 'basic-button',
                                     }}
                                 >
-                                    <MenuItem onClick={handlePostClose}>Pin Post</MenuItem>
-                                    <MenuItem onClick={handlePostClose}>Delete Post</MenuItem>
+                                    <MenuItem key={index}pin onClick={(event) => handlePostPin(event, index)}>Pin Post</MenuItem>
+                                    <MenuItem key={index}unpin onClick={(event) => handlePostUnPin(event, index)}>Unpin Post</MenuItem>
+                                    <MenuItem key={index}del onClick={(event) => handlePostDelete(event, index)}>Delete Post</MenuItem>
                                 </Menu>
                             </ListItem>
                             <Divider />
