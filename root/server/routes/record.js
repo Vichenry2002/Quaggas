@@ -75,6 +75,7 @@ recordRoutes.route("/record/add").post(async function (req, response) {
     let myobj = {
         name: req.body.user_id,
         position: req.body.hashedpswd,
+        discussions: []
     };
     let user = {
         name: req.body.user_id,
