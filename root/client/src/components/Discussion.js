@@ -150,7 +150,6 @@ const DiscussionPage = () => {
                         'Content-Type': 'application/json',
                     },
                 });
-                alert(`Channel has been renamed.`);
     
                 // Clear input after submission
                 setPopup3Input1('');
@@ -158,6 +157,8 @@ const DiscussionPage = () => {
                 // Close the popup
                 setPopup3Open(false);
             }
+            fetchPage();
+
         } catch (error) {
             console.error("Error while adding channel:", error);
             // Handle the error as needed
@@ -314,7 +315,7 @@ const DiscussionPage = () => {
     const submitHandle = async (inputValue) => {
         try {
             switch (inputValue) {
-                case 1:
+                case 'Add Channel':
                     // Check if channel is already in channe list
                     if (channel.includes(commandInput)) {
                         alert(`Channel ${commandInput} already exists in the list.`);
@@ -326,61 +327,63 @@ const DiscussionPage = () => {
                                 'Content-Type': 'application/json',
                             },
                         });
-                        alert(`Channel has been created.`);
                     }
+                    fetchPage();
+
                     break;
-                case 2:
+                case 'Remove Channel':
                     // Check if command is not in channel
                     if (!channel.includes(commandInput)) {
                         alert(`Channel ${commandInput} doesn't exist in the list.`);
                     } else {
                         // Send a request to remove a channel from the discussion board
                         const index = channel.indexOf(commandInput);
-                        const channel_id = board.channels[index]
+                        const channel_id = board.channels[index];
+                        console.log(channel_id);
                         const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${channel_id}/removeChannel`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
                         });
-                        alert(`Channel has been removed.`);
                     }
+                    fetchPage();
+
                     break;
-                case 4:
+                case 'Add User':
                     // Check if commandInput is already in user list
                     if (users.includes(commandInput)) {
                         alert(`User ${commandInput} exist in the list.`);
                     } else {
                         const temp = await fetch(`http://localhost:8081/usersadd/${commandInput}`);
                         const isReal = await temp.json();
-    
-                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/${board.title}/addUser`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                        alert(`User has been added.`);
-    
+                        if (isReal != "") {
+                            const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            });
+                        }
                     }
+                    fetchPage();
+
                     break;
-                case 5:
+                case 'Remove User':
                     // Check if commandInput is not in user list
                     if (!users.includes(commandInput)) {
                         alert(`User ${commandInput} doesn't exist in the list.`);
                     } else {
                         // Send a request to remove a user from the discussion board
-                        const temp = await fetch(`http://localhost:8081/usersadd/${commandInput}`);
-                        const isReal = await temp.json();
-    
-                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${isReal}/removeUser`, {
+                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${commandInput}/removeUser`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
                         });
-                        alert(`User has been removed.`);
                     }
+                    fetchPage();
+
                     break;
                 default:
                     console.error('Invalid Command');
@@ -565,19 +568,19 @@ const DiscussionPage = () => {
                         <DialogTitle>Admin Controls</DialogTitle>
                         <DialogContent>
                         <Stack spacing={2}>
-                            <Button variant="contained" onClick={() => handlePopupOpen(1)}>
+                            <Button variant="contained" onClick={() => handlePopupOpen('Add Channel')}>
                             Add Channel
                             </Button>
-                            <Button variant="contained" onClick={() => handlePopupOpen(2)}>
+                            <Button variant="contained" onClick={() => handlePopupOpen('Remove Channel')}>
                             Remove Channel
                             </Button>
                             <Button variant="contained" onClick={handlePopup3Open}>
                             Rename Channel
                             </Button>
-                            <Button variant="contained" onClick={() => handlePopupOpen(4)}>
+                            <Button variant="contained" onClick={() => handlePopupOpen('Add User')}>
                             Add User
                             </Button>
-                            <Button variant="contained" onClick={() => handlePopupOpen(5)}>
+                            <Button variant="contained" onClick={() => handlePopupOpen('Remove User')}>
                             Remove User
                             </Button>
                         </Stack>
@@ -590,16 +593,16 @@ const DiscussionPage = () => {
                     </Dialog>
 
                     <Dialog open={popup3Open} onClose={handlePopup3Close}>
-                        <DialogTitle>Popup 3 Title</DialogTitle>
+                        <DialogTitle>Rename Channel</DialogTitle>
                         <DialogContent>
                             <TextField
-                                label="Enter Text 1"
+                                label="Channel Name"
                                 variant="outlined"
                                 value={popup3Input1}
                                 onChange={(e) => setPopup3Input1(e.target.value)}
                             />
                             <TextField
-                                label="Enter Text 2"
+                                label="New Channel Name"
                                 variant="outlined"
                                 value={popup3Input2}
                                 onChange={(e) => setPopup3Input2(e.target.value)}
@@ -620,8 +623,8 @@ const DiscussionPage = () => {
                         open={currentPopup !== null}  // Update this line
                         handleClose={handlePopupClose}
                         handleSubmit={() => submitHandle(currentPopup)}
-                        title={`Popup ${currentPopup} Title`}
-                        inputLabel="Enter Text"
+                        title={currentPopup}
+                        inputLabel="Enter Input"
                         inputValue={commandInput}
                         handleInputChange={setcommandInput}
                     />
