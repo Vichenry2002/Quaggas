@@ -25,6 +25,8 @@ import CustomDialog from './dialogComponents';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
+import { useParams } from 'react-router-dom';
+
 import Modal from 'react-modal'; // Import Modal from 'react-modal'
 
 
@@ -55,10 +57,10 @@ const DiscussionPage = () => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     //test constant discussion, to be changed later
-    const discussionId = "6562539e872555cf4b716d2e";
-    const userID = "65625388872555cf4b716d2d";
-    //const disccusionId = window.location.pathname;
-    //const userID = sessionStorage.getItem("username");
+    //const discussionId = "6562539e872555cf4b716d2e";
+    //const userID = "65625388872555cf4b716d2d";
+    const discussionId = useParams().id;
+    const userID = sessionStorage.getItem("username");
 
     useEffect(() => {
         fetchPage();
@@ -66,8 +68,8 @@ const DiscussionPage = () => {
 
     const fetchPage = async () => {
         const discussion_board = await fetchDiscussionBoard();
-        const admins_list = await fetchAdmins(discussion_board.admins);
-        const users_list = await fetchUsers(discussion_board.admins, discussion_board.users);
+        const admins_list = discussion_board.admins;
+        const users_list = discussion_board.users.filter(x => !discussion_board.admins.includes(x));
         const channel_list = await fetchChannel(discussion_board.channels)
         const channel_list_name = fetchChannelnames(channel_list)
         const posts_list = fetchPosts(channel_list)
@@ -76,6 +78,9 @@ const DiscussionPage = () => {
         setPosts(posts_list);
         setAdmins(admins_list);
         setUsers(users_list);
+
+        console.log(users_list);
+
         console.log(posts_list);
 
         const userIsAdmin = discussion_board.admins.includes(userID);
@@ -677,7 +682,7 @@ const DiscussionPage = () => {
             <Box 
                 component="main"
                 fullwidth
-                sx={{ flexGrow: 1, p: 3, border: '2px solid red', height: "100vh", overflow: "hidden"}}
+                sx={{ flexGrow: 1, p: 3, height: "100vh", overflow: "hidden"}}
             >
                 <Toolbar />
                 
