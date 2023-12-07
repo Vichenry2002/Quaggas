@@ -24,6 +24,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CustomDialog from './dialogComponents';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { useNavigate } from 'react-router-dom';
 
 import { useParams } from 'react-router-dom';
 
@@ -61,6 +62,14 @@ const DiscussionPage = () => {
     //const userID = "65625388872555cf4b716d2d";
     const discussionId = useParams().id;
     const userID = sessionStorage.getItem("username");
+    const navigate = useNavigate();
+
+    //check user is logged in, if not redirect to landing
+    if (userID === "" || userID === null){
+        setTimeout(() => {
+            navigate("/");
+        }, 0);
+    }
 
     useEffect(() => {
         fetchPage();
