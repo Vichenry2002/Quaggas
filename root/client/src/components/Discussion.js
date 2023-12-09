@@ -21,14 +21,38 @@ import SendIcon from '@mui/icons-material/Send';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PushPinIcon from '@mui/icons-material/PushPinRounded';
 import SearchIcon from '@mui/icons-material/Search';
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CustomDialog from './dialogComponents';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
+import { styled, useTheme } from '@mui/material/styles';
+
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import { useParams } from 'react-router-dom';
 
 import Modal from 'react-modal'; // Import Modal from 'react-modal'
+import ExitToApp from '@mui/icons-material/ExitToApp';
+
+function getWindowDimensions() {
+    const { innerWidth: width, innerHeight: height } = window;
+    return {
+      width,
+      height
+    };
+}
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+    justifyContent: 'flex-end',
+  }));
 
 
 const drawerWidth = 300; //change this to percent scaling later
@@ -44,7 +68,6 @@ const DiscussionPage = () => {
     const [open, setOpen] = React.useState(false);
     const [isAdmin, setIsAdmin] = React.useState(false);
 
-
     const [newPopupOpen, setNewPopupOpen] = React.useState(false);
 
     const [popup3Open, setPopup3Open] = React.useState(false);
@@ -57,6 +80,12 @@ const DiscussionPage = () => {
     const [searchResults, setSearchResults] = React.useState([]);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
+    const [permanantDrawers, setPermanantDrawers] = React.useState(false);
+
+    const [channelDrawerOpen, setChannelDrawerOpen] = React.useState(false);
+    const [userDrawerOpen, setUserDrawerOpen] = React.useState(false);
+
     //test constant discussion, to be changed later
     //const discussionId = "6562539e872555cf4b716d2e";
     //const userID = "65625388872555cf4b716d2d";
@@ -73,6 +102,21 @@ const DiscussionPage = () => {
 
     useEffect(() => {
         fetchPage();
+
+        function handleResize() {
+            const dim = getWindowDimensions()
+
+            setWindowDimensions(dim);
+
+            if (dim.width < 3 * drawerWidth) {
+                setPermanantDrawers(false);
+            } else {
+                setPermanantDrawers(true);
+            }
+        }
+      
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     const fetchPage = async () => {
@@ -95,7 +139,27 @@ const DiscussionPage = () => {
         const userIsAdmin = discussion_board.admins.includes(userID);
         console.log(userIsAdmin)
         setIsAdmin(userIsAdmin);
-    }
+    };
+
+    const handleOpenUserDrawer = () => {
+        setUserDrawerOpen(true);
+    };
+
+    const handleCloseUserDrawer = () => {
+        setUserDrawerOpen(false);
+    };
+
+    const handleOpenChannelDrawer = () => {
+        setChannelDrawerOpen(true);
+    };
+
+    const handleCloseChannelDrawer = () => {
+        setChannelDrawerOpen(false);
+    };
+
+    const navigateToDashboard = () => {
+        navigate(`/dashboard`);
+    };
 
     const handleOpen = () => {
         setOpen(true);
@@ -426,7 +490,7 @@ const DiscussionPage = () => {
               bgcolor: color,
             },
           };
-      }
+    }
 
     const handleSendMessage = async () => {
         const message = document.getElementById('send-message');
@@ -495,6 +559,16 @@ const DiscussionPage = () => {
 
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={handleOpenUserDrawer}
+                    edge="start"
+                    sx={{ mr: 2, ...(channelDrawerOpen && { display: 'none' }) }}
+                >
+                    <MenuIcon />
+                </IconButton>
+
                     <Typography 
                         variant="h6" 
                         noWrap
@@ -542,16 +616,15 @@ const DiscussionPage = () => {
                 </Toolbar>
             </AppBar>
 
-            
-
-
                 <Drawer
                     variant="permanent"
                     sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+                        width: drawerWidth,
+                        height: '100vh',
+                        flexShrink: 0,
+                        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
                     }}
+                    open={channelDrawerOpen}
                 >
                     <Toolbar />
                     <Box height="100vh" sx={{ overflow: 'auto' }}>
@@ -568,11 +641,52 @@ const DiscussionPage = () => {
                         ))}
                     </List>
                     <Divider />
-                    {isAdmin && (
-                        <Button variant="contained" onClick={handleOpen}>
-                            Admin Settings
-                        </Button>
-                    )}
+
+                        <Stack
+                            spacing={0}
+                            sx={{
+                                position: 'absolute',
+                                bottom: 0
+                            }}
+                        >
+                            {isAdmin && (
+                                <ListItem>
+                                    <IconButton
+                                        onClick={handleOpen}
+                                    >
+                                        <SettingsIcon>
+
+                                        </SettingsIcon>
+
+                                        <ListItemText
+                                            style={{paddingLeft: '1vw'}}
+                                        >
+                                            Settings         
+                                        </ListItemText>
+
+                                    </IconButton>
+                                </ListItem>
+                                )}
+
+                                <ListItem>
+                                <IconButton
+                                    onClick={navigateToDashboard}
+                                >
+                                    <ExitToAppIcon
+                                        style={{ color: 'red'}}
+                                    >
+
+                                    </ExitToAppIcon>
+
+                                    <ListItemText
+                                        style={{color: 'red', paddingLeft: '1vw'}}
+                                    >
+                                        Exit         
+                                    </ListItemText>
+                                </IconButton>
+                            </ListItem>
+                        </Stack>
+                    
                         <Dialog open={open} onClose={handleClose}>
                         <DialogTitle>Admin Controls</DialogTitle>
                         <DialogContent>
@@ -741,13 +855,22 @@ const DiscussionPage = () => {
                 </Stack>
 
                 <Box
-                    sx={{position: "absolute", bottom: 0, boxSizing: "border-box", width: "66%", paddingBottom: "2vh"}}
+                    sx={{
+                        position: "absolute", 
+                        bottom: 0, 
+                        boxSizing: "border-box", 
+                        width: windowDimensions.width - 2 * drawerWidth - 20, 
+                        paddingBottom: "2vh", 
+                        // border: "1px solid red"
+                    }}
                 >
                     <TextField 
                         id="send-message" 
                         label="Send a message" 
                         variant="outlined" 
-                        sx={{width: "95%"}}
+                        sx={{
+                            width: windowDimensions.width - 2 * drawerWidth - 100
+                        }}
                     />    
 
                     <IconButton
@@ -762,6 +885,7 @@ const DiscussionPage = () => {
             <Drawer
                 sx={{
                 width: drawerWidth,
+                height: '100vh',
                 flexShrink: 0,
                 '& .MuiDrawer-paper': {
                     width: drawerWidth,
@@ -800,6 +924,19 @@ const DiscussionPage = () => {
                             </ListItem>
                         ))}
                     </List>
+
+                    <List
+                        sx={{
+                            position: 'absolute',
+                            bottom: 0,
+                            right: 0,
+                            paddingRight: '1vw'
+                        }}
+                    >
+                            
+                    </List>
+                    
+                    
             </Drawer>
         </Box>
       );
