@@ -126,7 +126,7 @@ discussionBoardRoutes.route("/discussions/:discussionId/:channelID/removeChannel
         // Update the discussion collection by pulling the channelID to the channels list
         db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
-            { $pull: { channels: new ObjectId(channelID)} }
+            { $pull: { channels: channelID} }
         );
 
         // Send a success response back
