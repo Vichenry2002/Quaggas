@@ -42,7 +42,7 @@ discussionBoardRoutes.route("/discussions/:discussionId/:userID/:title/addUser")
         );
 
         db_connect.collection("users").updateOne(
-            { _id: new ObjectId(userID) }, 
+            { name: userID }, 
             { $push: { discussions: { discussionId, title } } }
         );
 
@@ -69,7 +69,7 @@ discussionBoardRoutes.route("/discussions/:discussionId/:userID/removeUser").pos
         );
 
         await db_connect.collection("users").updateOne(
-            { _id: new ObjectId(userID) }, 
+            { name: userID }, 
             { $pull: { discussions: { discussionId: discussionId } } }
         );
 
