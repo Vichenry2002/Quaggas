@@ -28,7 +28,7 @@ const AddUser = ({ discussionId, discussionTitle }) => {
             role, // Include the selected role in the request
         };
 
-        const addUserToDiscussionResponse = await fetch(domainName+'/user/${username}/addDiscussion', {
+        const addUserToDiscussionResponse = await fetch(domainName+`/user/${username}/addDiscussion`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
