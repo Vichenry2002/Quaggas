@@ -21,5 +21,6 @@ Worked on landing page frontend and display. Implemented backend and frontend fo
 -Joshua Jian:
 
 -William Huang:
+Worked on discussion board page frontend and display. Implemented the users display, the channel display and selection, the message board, the message box, the search function, the pinned messages, the back to dashboard redirection
 
 
