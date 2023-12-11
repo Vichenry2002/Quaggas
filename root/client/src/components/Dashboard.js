@@ -112,12 +112,6 @@ export default function UserDashboard() {
         }
     };
     
-
-    const handleAddChannelsDiscussion = (discussionId) => {
-        console.log("add channel", discussionId);
-        // Implement delete discussion logic here
-    };
-
     const handleLogout = () => {
         sessionStorage.setItem("username", "");
         navigate("/");

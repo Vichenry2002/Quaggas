@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Modal from 'react-modal';
 import './AddUser.css';
 
 const AddUser = ({ discussionId, discussionTitle }) => {
