@@ -3,7 +3,6 @@ const express = require("express");
 const discussionBoardRoutes = express.Router();
  
 const dbo = require("../db/conn");
-const {json} = require("express");
  
 const ObjectId = require("mongodb").ObjectId;
 
@@ -26,23 +25,23 @@ discussionBoardRoutes.route("/discussions/:discussionID").get(async function (re
     }
 });
 
-// Add user to discussion board given userID and discussion board ID
-discussionBoardRoutes.route("/discussions/:discussionId/:userID/:title/addUser").post(function (req, response) {
+// Add user to discussion board given username and discussion board ID
+discussionBoardRoutes.route("/discussions/:discussionId/:username/:title/addUser").post(function (req, response) {
     let db_connect = dbo.getDb();
-    const userID = req.params.userID; // Require userID
+    const username = req.params.username; // Require username
     const discussionId = req.params.discussionId; 
     const title = req.params.title; 
 
 
     try {
-        // Update the discussion collection by adding userID to users list
+        // Update the discussion collection by adding username to users list
         db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
-            { $push: { users: userID} }
+            { $push: { users: username} }
         );
 
         db_connect.collection("users").updateOne(
-            { name: userID }, 
+            { name: username }, 
             { $push: { discussions: { discussionId, title } } }
         );
 
@@ -55,21 +54,21 @@ discussionBoardRoutes.route("/discussions/:discussionId/:userID/:title/addUser")
     }
 });
 
-// Remove user from discussion board given userID and board ID
-discussionBoardRoutes.route("/discussions/:discussionId/:userID/removeUser").post(async function (req, response) {
+// Remove user from discussion board given username and board ID
+discussionBoardRoutes.route("/discussions/:discussionId/:username/removeUser").post(async function (req, response) {
     let db_connect = dbo.getDb();
-    const userID = req.params.userID;
+    const username = req.params.username;
     const discussionId = req.params.discussionId; 
 
     try {
-        // Update the discussion collection by pulling the userId from the users arrays
+        // Update the discussion collection by pulling the username from the users arrays
         await db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
-            { $pull: { users: userID} }
+            { $pull: { users: username} }
         );
 
         await db_connect.collection("users").updateOne(
-            { name: userID }, 
+            { name: username }, 
             { $pull: { discussions: { discussionId: discussionId } } }
         );
 
@@ -121,19 +120,19 @@ discussionBoardRoutes.route("/discussions/:discussionId/:channelID/removeChannel
     let db_connect = dbo.getDb();
     const channelID = req.params.channelID; // Require channel ID
     const discussionId = req.params.discussionId; 
-    console.log(channelID);
+    // console.log(channelID);
     try {
-        // Update the discussion collection by pulling the channelID to the channels list
+        // Update the discussion collection by pulling the channelID from the channels list
         db_connect.collection("discussions").updateOne(
             { _id: new ObjectId(discussionId) }, 
             { $pull: { channels: channelID} }
         );
 
         // Send a success response back
-        response.status(200).json({ message: "Channel added to discussion" });
+        response.status(200).json({ message: "Channel Removed from discussion" });
     } catch (err) {
         // If an error occurs, send an error response
-        console.error("Error while adding channel to discussion:", err);
+        console.error("Error while removing channel to discussion:", err);
         response.status(500).json({ error: err.message });
     }
 });
@@ -191,44 +190,6 @@ discussionBoardRoutes.route("/channels/:channelID").get(async function (req, res
     }
 });
 
-
-//get user from userID
-discussionBoardRoutes.route("/users/:userID").get(async function (req, response) {
-    let db_connect = dbo.getDb();
-    const userID = req.params.userID;
-
-    try {
-        const result = await db_connect.collection("users").findOne({ _id: new ObjectId(userID) });
-
-        if (!result) {
-            response.status(404).send("Users not found");
-            return;
-        }
-        response.json(result.name);
-    } catch (err) {
-        console.error("Error fetching users:", err);
-        response.status(500).send("Internal Server Error");
-    }
-});
-
-//get user from userID
-discussionBoardRoutes.route("/usersadd/:userID").get(async function (req, response) {
-    let db_connect = dbo.getDb();
-    const userID = req.params.userID;
-    try {
-        const result = await db_connect.collection("users").findOne({ name: userID });
-
-        if (!result) {
-            response.status(404).send("Users not found");
-            return;
-        }
-        response.json(result._id);
-    } catch (err) {
-        console.error("Error fetching users:", err);
-        response.status(500).send("Internal Server Error");
-    }
-});
-
 // Add Post to discussion board
 discussionBoardRoutes.route("/channels/:channelID/:userID/:content/addPost").post(async function (req, res) {
     let db_connect = dbo.getDb();
@@ -260,7 +221,6 @@ discussionBoardRoutes.route("/channels/:channelID/:userID/:content/addPost").pos
             { $push: { posts: obj } }
         );
 
-        // Send a success response back
     } catch (err) {
         // If an error occurs, send an error response
         console.error("Error while adding posts to channels:", err);
@@ -279,7 +239,6 @@ discussionBoardRoutes.route("/channels/:channelID/:postID/removePost").post(asyn
             { $pull: { posts: new ObjectId(postID) } }
         );
 
-        // Send a success response back
     } catch (err) {
         // If an error occurs, send an error response
         console.error("Error while removing posts from channels:", err);
@@ -297,14 +256,13 @@ discussionBoardRoutes.route("/posts/:postID/pin").post(async function (req, res)
             { $set: { pinned: true } }
         );
 
-        // Send a success response back
     } catch (err) {
         // If an error occurs, send an error response
         console.error("Error while pinning posts to channels:", err);
     }
 });
 
-// Pin Post to discussion board
+// Unpin Post to discussion board
 discussionBoardRoutes.route("/posts/:postID/unpin").post(async function (req, res) {
     let db_connect = dbo.getDb();
     const postID = req.params.postID;
@@ -315,10 +273,9 @@ discussionBoardRoutes.route("/posts/:postID/unpin").post(async function (req, re
             { $set: { pinned: false } }
         );
 
-        // Send a success response back
     } catch (err) {
         // If an error occurs, send an error response
-        console.error("Error while pinning posts to channels:", err);
+        console.error("Error while unpinning posts to channels:", err);
     }
 });
 
