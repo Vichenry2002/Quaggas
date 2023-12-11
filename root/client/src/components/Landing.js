@@ -9,6 +9,7 @@ const secretPass = "WfgHyiosyGH";
 
 const LandingPage = () => {
     const navigate=useNavigate();
+    const domainName = 'http://localhost:8081';
     const [form, setForm] = useState({
         username: "",
         hashedpswd: "",
@@ -27,7 +28,7 @@ const LandingPage = () => {
         const ps=await bcrypt.hash(psraw,saltRounds);
         const usr=form.username;
         const newPerson={"username": usr, "hashedpswd": psraw}
-        var ticket =await fetch("http://localhost:8081/record/auth", {
+        var ticket =await fetch(domainName+"/record/auth", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

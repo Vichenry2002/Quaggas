@@ -7,7 +7,6 @@ const {json} = require("express");
  
 const ObjectId = require("mongodb").ObjectId;
 
-//Get discussions by user_id
 
 //Create discussion
 discussionRoutes.route("/discussions/add").post(async function (req, response) {
@@ -155,9 +154,5 @@ discussionRoutes.route("/discussion/:discussionId/isAdmin/:username").get(async 
   }
 });
 
-  
-
-
-//Delete discussion
 
 module.exports = discussionRoutes;

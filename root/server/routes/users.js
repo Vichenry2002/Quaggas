@@ -26,7 +26,6 @@ userRoutes.route("/user/:username/discussions").get(async function (req, respons
     }
 });
 
-// In your userRoutes file
 
 // Endpoint to add a discussion to a user's discussions
 userRoutes.route("/user/:username/addDiscussion").put(async function (req, res) {

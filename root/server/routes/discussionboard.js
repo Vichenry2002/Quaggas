@@ -192,7 +192,7 @@ discussionBoardRoutes.route("/channels/:channelID").get(async function (req, res
 });
 
 
-//To be deleted later, get user from userID
+//get user from userID
 discussionBoardRoutes.route("/users/:userID").get(async function (req, response) {
     let db_connect = dbo.getDb();
     const userID = req.params.userID;
@@ -211,7 +211,7 @@ discussionBoardRoutes.route("/users/:userID").get(async function (req, response)
     }
 });
 
-//To be deleted later, get user from userID
+//get user from userID
 discussionBoardRoutes.route("/usersadd/:userID").get(async function (req, response) {
     let db_connect = dbo.getDb();
     const userID = req.params.userID;

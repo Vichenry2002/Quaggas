@@ -6,6 +6,8 @@ const AddUser = ({ discussionId, discussionTitle }) => {
     const [username, setUsername] = useState('');
     const [role, setRole] = useState('user'); // Default role is 'user'
 
+    const domainName = 'http://localhost:8081';
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,7 +28,7 @@ const AddUser = ({ discussionId, discussionTitle }) => {
             role, // Include the selected role in the request
         };
 
-        const addUserToDiscussionResponse = await fetch(`http://localhost:8081/user/${username}/addDiscussion`, {
+        const addUserToDiscussionResponse = await fetch(domainName+'/user/${username}/addDiscussion', {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -47,7 +49,7 @@ const AddUser = ({ discussionId, discussionTitle }) => {
             try {
                 if(role === 'admin'){
                     //Make a POST request to add admin to discussion
-                    const response_admin = await fetch(`http://localhost:8081/discussion/${discussionId}/addAdmin/${username}`, {
+                    const response_admin = await fetch(domainName+`/discussion/${discussionId}/addAdmin/${username}`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -67,7 +69,7 @@ const AddUser = ({ discussionId, discussionTitle }) => {
                 }
     
                 // Make a POST request to the API endpoint to add the user to the discussion
-                const response = await fetch(`http://localhost:8081/discussion/${discussionId}/addUser/${username}`, {
+                const response = await fetch(domainName+`/discussion/${discussionId}/addUser/${username}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

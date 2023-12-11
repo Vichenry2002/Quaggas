@@ -45,6 +45,7 @@ function getWindowDimensions() {
     };
 }
 
+
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
@@ -57,6 +58,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const drawerWidth = 300; //change this to percent scaling later
 const DiscussionPage = () => {
+    const domainName = 'http://localhost:8081';
     //default channel is general, always at index 0
     const [selectedIndex, setSelectedDiscussion] = React.useState(0);
     const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
@@ -217,7 +219,7 @@ const DiscussionPage = () => {
                 // Send a request to add a channel to the discussion board
                 const index = channel.indexOf(popup3Input1);
                 const channel_id = board.channels[index]
-                const response = await fetch(`http://localhost:8081/discussions/${channel_id}/${popup3Input2}/renameChannel`, {
+                const response = await fetch(domainName+`/discussions/${channel_id}/${popup3Input2}/renameChannel`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -240,7 +242,7 @@ const DiscussionPage = () => {
 
     const fetchDiscussionBoard = async () => {
         try {
-            const response = await fetch(`http://localhost:8081/discussions/${discussionId}`);
+            const response = await fetch(domainName+`/discussions/${discussionId}`);
             const boardData = await response.json();
             if (boardData) {
                 setBoard(boardData)
@@ -258,7 +260,7 @@ const DiscussionPage = () => {
           const channelDataList = [];
       
           for (const channel_id of channel_id_list) {
-            const response = await fetch(`http://localhost:8081/channels/${channel_id}`);
+            const response = await fetch(domainName+`/channels/${channel_id}`);
             const channelData = await response.json();
             channelDataList.push(channelData);
           }
@@ -293,7 +295,7 @@ const DiscussionPage = () => {
       try {
           var admins_list = []
           admins_id_list.forEach(async (element) => {
-              const response = await fetch(`http://localhost:8081/users/${element}`);
+              const response = await fetch(domainName+`/users/${element}`);
               const name = await response.json();
               if (name) {
                   admins_list.push(name)
@@ -309,7 +311,7 @@ const DiscussionPage = () => {
             const diff = users.filter(x => !admins.includes(x));
             var users = []
             diff.forEach(async (element) => {
-                const response = await fetch(`http://localhost:8081/users/${element}`);
+                const response = await fetch(domainName+`/users/${element}`);
                 const name = await response.json();
                 if (name) {
                     users.push(name)
@@ -340,7 +342,7 @@ const DiscussionPage = () => {
 
         console.log(post.content);
 
-        await fetch(`http://localhost:8081/posts/${post_id}/pin`, {
+        await fetch(domainName+`/posts/${post_id}/pin`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -357,7 +359,7 @@ const DiscussionPage = () => {
 
         console.log(post.content);
 
-        await fetch(`http://localhost:8081/posts/${post_id}/unpin`, {
+        await fetch(domainName+`/posts/${post_id}/unpin`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -374,7 +376,7 @@ const DiscussionPage = () => {
 
         posts[selectedIndex].splice(index, 1);
 
-        await fetch(`http://localhost:8081/channels/${channel_id}/${post_id}/removePost`, {
+        await fetch(domainName+`/channels/${channel_id}/${post_id}/removePost`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -394,7 +396,7 @@ const DiscussionPage = () => {
                         alert(`Channel ${commandInput} already exists in the list.`);
                     } else {
                         // Send a request to add a channel to the discussion board
-                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${commandInput}/addChannel`, {
+                        const response = await fetch(domainName+`/discussions/${discussionId}/${commandInput}/addChannel`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -413,7 +415,7 @@ const DiscussionPage = () => {
                         const index = channel.indexOf(commandInput);
                         const channel_id = board.channels[index];
                         console.log(channel_id);
-                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${channel_id}/removeChannel`, {
+                        const response = await fetch(domainName+`/discussions/${discussionId}/${channel_id}/removeChannel`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -428,10 +430,10 @@ const DiscussionPage = () => {
                     if (users.includes(commandInput)) {
                         alert(`User ${commandInput} exist in the list.`);
                     } else {
-                        const temp = await fetch(`http://localhost:8081/usersadd/${commandInput}`);
+                        const temp = await fetch(domainName+`/usersadd/${commandInput}`);
                         const isReal = await temp.json();
                         if (isReal != "") {
-                            const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
+                            const response = await fetch(domainName+`/discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -448,7 +450,7 @@ const DiscussionPage = () => {
                         alert(`User ${commandInput} doesn't exist in the list.`);
                     } else {
                         // Send a request to remove a user from the discussion board
-                        const response = await fetch(`http://localhost:8081/discussions/${discussionId}/${commandInput}/removeUser`, {
+                        const response = await fetch(domainName+`/discussions/${discussionId}/${commandInput}/removeUser`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -496,7 +498,7 @@ const DiscussionPage = () => {
         const message = document.getElementById('send-message');
 
         if (message.value) {
-            await fetch(`http://localhost:8081/channels/${board.channels[selectedIndex]}/${userID}/${message.value}/addPost`, {
+            await fetch(domainName+`/channels/${board.channels[selectedIndex]}/${userID}/${message.value}/addPost`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

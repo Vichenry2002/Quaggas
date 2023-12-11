@@ -5,6 +5,8 @@ import './AddUser.css';
 const AddChannel = ({ discussionId, discussionTitle }) => {
     const [channel, setChannel] = useState('');
 
+    const domainName = 'http://localhost:8081';
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,7 +19,7 @@ const AddChannel = ({ discussionId, discussionTitle }) => {
             return;
         }
 
-        const addChannelToDiscussionResponse = await fetch(`http://localhost:8081/discussions/${discussionId}/${channel}/addChannel`, {
+        const addChannelToDiscussionResponse = await fetch(domainName+`/discussions/${discussionId}/${channel}/addChannel`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -9,28 +9,6 @@ const {json} = require("express");
  
 const ObjectId = require("mongodb").ObjectId;
 
-
-//to get the entire colletion
-//used it to see if registering worked
-/*
-recordRoutes.route("/record").get(function (req, res) {
- let db_connect = dbo.getDb("Quaggas");
- console.log(req);
- db_connect
-   .collection("users")
-   .find({})
-   .toArray(function (err, result) {
-     if (err) throw err;
-     res.json(result);
-     console.log(result);
-   });
-});
-
- */
-
- 
-//can be used for Auth
-
 recordRoutes.route("/record/auth").post(async function (req, response) {
     let db_connect = dbo.getDb();
     let myobj = {
@@ -96,17 +74,4 @@ recordRoutes.route("/record/add").post(async function (req, response) {
     }
 });
  
-/*
-
-
-recordRoutes.route("/:id").delete((req, response) => {
- let db_connect = dbo.getDb();
- let myquery = { _id: ObjectId(req.params.id) };
- db_connect.collection("users").deleteOne(myquery, function (err, obj) {
-   if (err) throw err;
-   console.log("1 document deleted");
-   response.json(obj);
- });
-});
-*/
 module.exports = recordRoutes;
