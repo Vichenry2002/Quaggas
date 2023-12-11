@@ -211,15 +211,14 @@ const DiscussionPage = () => {
     
     const handlePopup3Submit = async () => {
         try {
-            // Check if popup1Input is already in channel_list_name
+            // Check if popup3Input1 is already in channel_list_name
             if (!channel.includes(popup3Input1)) {
                 alert(`Channel ${popup3Input1} doesn't exist in the list.`);
-                // Optionally, you can display a message or take other actions
             } else {
                 // Send a request to add a channel to the discussion board
                 const index = channel.indexOf(popup3Input1);
                 const channel_id = board.channels[index]
-                const response = await fetch(domainName+`/discussions/${channel_id}/${popup3Input2}/renameChannel`, {
+                await fetch(domainName+`/discussions/${channel_id}/${popup3Input2}/renameChannel`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -291,37 +290,6 @@ const DiscussionPage = () => {
         return postDataList
     };
 
-    const fetchAdmins = async (admins_id_list) => {
-      try {
-          var admins_list = []
-          admins_id_list.forEach(async (element) => {
-              const response = await fetch(domainName+`/users/${element}`);
-              const name = await response.json();
-              if (name) {
-                  admins_list.push(name)
-              } 
-          });
-          return admins_list
-      } catch (error) {
-          console.error("Error loading admins:", error);
-      }
-  };
-    const fetchUsers = async (admins, users) => {
-        try {
-            const diff = users.filter(x => !admins.includes(x));
-            var users = []
-            diff.forEach(async (element) => {
-                const response = await fetch(domainName+`/users/${element}`);
-                const name = await response.json();
-                if (name) {
-                    users.push(name)
-                } 
-            });
-            return users
-        } catch (error) {
-            console.error("Error fetching discussion:", error);
-        }
-    };
     //changes the selected discussion page 
     const discussionPageClick = (event , index) => {
         setSelectedDiscussion(index);
@@ -396,7 +364,7 @@ const DiscussionPage = () => {
                         alert(`Channel ${commandInput} already exists in the list.`);
                     } else {
                         // Send a request to add a channel to the discussion board
-                        const response = await fetch(domainName+`/discussions/${discussionId}/${commandInput}/addChannel`, {
+                        await fetch(domainName+`/discussions/${discussionId}/${commandInput}/addChannel`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -415,7 +383,7 @@ const DiscussionPage = () => {
                         const index = channel.indexOf(commandInput);
                         const channel_id = board.channels[index];
                         console.log(channel_id);
-                        const response = await fetch(domainName+`/discussions/${discussionId}/${channel_id}/removeChannel`, {
+                        await fetch(domainName+`/discussions/${discussionId}/${channel_id}/removeChannel`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -430,16 +398,12 @@ const DiscussionPage = () => {
                     if (users.includes(commandInput)) {
                         alert(`User ${commandInput} exist in the list.`);
                     } else {
-                        const temp = await fetch(domainName+`/usersadd/${commandInput}`);
-                        const isReal = await temp.json();
-                        if (isReal != "") {
-                            const response = await fetch(domainName+`/discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                            });
-                        }
+                        await fetch(domainName+`/discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
                     }
                     fetchPage();
 
@@ -450,7 +414,7 @@ const DiscussionPage = () => {
                         alert(`User ${commandInput} doesn't exist in the list.`);
                     } else {
                         // Send a request to remove a user from the discussion board
-                        const response = await fetch(domainName+`/discussions/${discussionId}/${commandInput}/removeUser`, {
+                        await fetch(domainName+`/discussions/${discussionId}/${commandInput}/removeUser`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
