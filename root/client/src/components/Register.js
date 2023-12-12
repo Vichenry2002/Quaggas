@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const saltRounds=10;
 
 export default function Create() {
-    const domainName = 'http://localhost:8081';
+    const domainName = 'https://fall2023-comp307-group11.cs.mcgill.ca/api';
     const [form, setForm] = useState({
         user_id: "",
         hashedpswd: "",
@@ -25,7 +25,7 @@ export default function Create() {
         const newPerson = { ...form };
         const ps=await bcrypt.hash(newPerson.hashedpswd,saltRounds);
         newPerson.hashedpswd= ps;
-        var response = await fetch(domainName+"/record/add", {
+        var response = await fetch(domainName+"record/add", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

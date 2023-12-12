@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussion }) {
     //TODO: Replace with actual user ID (from auth context or similar)
     const userId = sessionStorage.getItem("username");
-    const domainName = 'http://localhost:8081';
+    const domainName = 'https://fall2023-comp307-group11.cs.mcgill.ca/api';
 
     const [form, setForm] = useState({
         title: "",
@@ -35,7 +35,7 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
         try {
 
             //creating channel in channel discussion
-            let response_1 = await fetch(domainName+"/channel/add", {
+            let response_1 = await fetch(domainName+"channel/add", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
             };
 
             // Adding discussion to discussions collection
-            let response = await fetch(domainName+"/discussions/add", {
+            let response = await fetch(domainName+"discussions/add", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export default function DiscussionBoard({ isOpen, onRequestClose, addNewDiscussi
 
 
             // Adding discussion to user collection
-            await fetch(domainName+`/user/${userId}/addDiscussion`, {
+            await fetch(domainName+`user/${userId}/addDiscussion`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

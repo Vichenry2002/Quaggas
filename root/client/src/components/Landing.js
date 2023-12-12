@@ -9,7 +9,7 @@ const secretPass = "WfgHyiosyGH";
 
 const LandingPage = () => {
     const navigate=useNavigate();
-    const domainName = 'http://localhost:8081';
+    const domainName = 'https://fall2023-comp307-group11.cs.mcgill.ca/api';
     const [form, setForm] = useState({
         username: "",
         hashedpswd: "",
@@ -28,7 +28,7 @@ const LandingPage = () => {
         const ps=await bcrypt.hash(psraw,saltRounds);
         const usr=form.username;
         const newPerson={"username": usr, "hashedpswd": psraw}
-        var ticket =await fetch(domainName+"/record/auth", {
+        var ticket =await fetch(domainName+"record/auth", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
