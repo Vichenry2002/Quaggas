@@ -21,21 +21,14 @@ import SendIcon from '@mui/icons-material/Send';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PushPinIcon from '@mui/icons-material/PushPinRounded';
 import SearchIcon from '@mui/icons-material/Search';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CustomDialog from './dialogComponents';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
-import { styled, useTheme } from '@mui/material/styles';
-
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SettingsIcon from '@mui/icons-material/Settings';
-
 import { useParams } from 'react-router-dom';
 
-import Modal from 'react-modal'; // Import Modal from 'react-modal'
-import ExitToApp from '@mui/icons-material/ExitToApp';
 
 function getWindowDimensions() {
     const { innerWidth: width, innerHeight: height } = window;
@@ -45,20 +38,9 @@ function getWindowDimensions() {
     };
 }
 
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
-  }));
-
-
 const drawerWidth = 300; //change this to percent scaling later
 const DiscussionPage = () => {
-    const domainName = 'https://fall2023-comp307-group11.cs.mcgill.ca/api';
+    const domainName = 'http://localhost:8081';
     //default channel is general, always at index 0
     const [selectedIndex, setSelectedDiscussion] = React.useState(0);
     const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
@@ -83,11 +65,12 @@ const DiscussionPage = () => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
+    /*
     const [permanantDrawers, setPermanantDrawers] = React.useState(false);
 
     const [channelDrawerOpen, setChannelDrawerOpen] = React.useState(false);
     const [userDrawerOpen, setUserDrawerOpen] = React.useState(false);
-
+    */
     //test constant discussion, to be changed later
     //const discussionId = "6562539e872555cf4b716d2e";
     //const userID = "65625388872555cf4b716d2d";
@@ -110,11 +93,13 @@ const DiscussionPage = () => {
 
             setWindowDimensions(dim);
 
+            /*
             if (dim.width < 3 * drawerWidth) {
                 setPermanantDrawers(false);
             } else {
                 setPermanantDrawers(true);
             }
+            */
         }
       
         window.addEventListener('resize', handleResize);
@@ -134,18 +119,15 @@ const DiscussionPage = () => {
         setAdmins(admins_list);
         setUsers(users_list);
 
-        console.log(users_list);
-
-        console.log(posts_list);
 
         const userIsAdmin = discussion_board.admins.includes(userID);
-        console.log(userIsAdmin)
         setIsAdmin(userIsAdmin);
     };
-
+    /*
     const handleOpenUserDrawer = () => {
         setUserDrawerOpen(true);
     };
+
 
     const handleCloseUserDrawer = () => {
         setUserDrawerOpen(false);
@@ -158,6 +140,7 @@ const DiscussionPage = () => {
     const handleCloseChannelDrawer = () => {
         setChannelDrawerOpen(false);
     };
+    */
 
     const navigateToDashboard = () => {
         navigate(`/dashboard`);
@@ -218,7 +201,7 @@ const DiscussionPage = () => {
                 // Send a request to add a channel to the discussion board
                 const index = channel.indexOf(popup3Input1);
                 const channel_id = board.channels[index]
-                await fetch(domainName+`discussions/${channel_id}/${popup3Input2}/renameChannel`, {
+                await fetch(domainName+`/discussions/${channel_id}/${popup3Input2}/renameChannel`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -241,7 +224,7 @@ const DiscussionPage = () => {
 
     const fetchDiscussionBoard = async () => {
         try {
-            const response = await fetch(domainName+`discussions/${discussionId}`);
+            const response = await fetch(domainName+`/discussions/${discussionId}`);
             const boardData = await response.json();
             if (boardData) {
                 setBoard(boardData)
@@ -259,7 +242,7 @@ const DiscussionPage = () => {
           const channelDataList = [];
       
           for (const channel_id of channel_id_list) {
-            const response = await fetch(domainName+`channels/${channel_id}`);
+            const response = await fetch(domainName+`/channels/${channel_id}`);
             const channelData = await response.json();
             channelDataList.push(channelData);
           }
@@ -308,9 +291,9 @@ const DiscussionPage = () => {
         post.pinned = true;
         const post_id = post._id;
 
-        console.log(post.content);
+        // console.log(post.content);
 
-        await fetch(domainName+`posts/${post_id}/pin`, {
+        await fetch(domainName+`/posts/${post_id}/pin`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -325,9 +308,9 @@ const DiscussionPage = () => {
         post.pinned = false;
         const post_id = post._id;
 
-        console.log(post.content);
+        // console.log(post.content);
 
-        await fetch(domainName+`posts/${post_id}/unpin`, {
+        await fetch(domainName+`/posts/${post_id}/unpin`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -344,7 +327,7 @@ const DiscussionPage = () => {
 
         posts[selectedIndex].splice(index, 1);
 
-        await fetch(domainName+`channels/${channel_id}/${post_id}/removePost`, {
+        await fetch(domainName+`/channels/${channel_id}/${post_id}/removePost`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -364,7 +347,7 @@ const DiscussionPage = () => {
                         alert(`Channel ${commandInput} already exists in the list.`);
                     } else {
                         // Send a request to add a channel to the discussion board
-                        await fetch(domainName+`discussions/${discussionId}/${commandInput}/addChannel`, {
+                        await fetch(domainName+`/discussions/${discussionId}/${commandInput}/addChannel`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -382,8 +365,8 @@ const DiscussionPage = () => {
                         // Send a request to remove a channel from the discussion board
                         const index = channel.indexOf(commandInput);
                         const channel_id = board.channels[index];
-                        console.log(channel_id);
-                        await fetch(domainName+`discussions/${discussionId}/${channel_id}/removeChannel`, {
+                        // console.log(channel_id);
+                        await fetch(domainName+`/discussions/${discussionId}/${channel_id}/removeChannel`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -398,7 +381,7 @@ const DiscussionPage = () => {
                     if (users.includes(commandInput)) {
                         alert(`User ${commandInput} exist in the list.`);
                     } else {
-                        await fetch(domainName+`discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
+                        await fetch(domainName+`/discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -414,7 +397,7 @@ const DiscussionPage = () => {
                         alert(`User ${commandInput} doesn't exist in the list.`);
                     } else {
                         // Send a request to remove a user from the discussion board
-                        await fetch(domainName+`discussions/${discussionId}/${commandInput}/removeUser`, {
+                        await fetch(domainName+`/discussions/${discussionId}/${commandInput}/removeUser`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -462,14 +445,14 @@ const DiscussionPage = () => {
         const message = document.getElementById('send-message');
 
         if (message.value) {
-            await fetch(domainName+`channels/${board.channels[selectedIndex]}/${userID}/${message.value}/addPost`, {
+            await fetch(domainName+`/channels/${board.channels[selectedIndex]}/${userID}/${message.value}/addPost`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
             });
 
-            console.log(message.value);
+            // console.log(message.value);
             fetchPage();
             
             message.value = '';
@@ -482,7 +465,7 @@ const DiscussionPage = () => {
 
         if (search.value) {
             const channel_posts = posts[selectedIndex];
-            console.log(search.value);
+            // console.log(search.value);
 
             channel_posts.forEach((post) => {
                 if (post.content.includes(search.value)) {
@@ -499,6 +482,7 @@ const DiscussionPage = () => {
         }
     };
 
+    /*
     const customStyles = {
         content: {
             top: '50%',
@@ -518,6 +502,7 @@ const DiscussionPage = () => {
             backgroundColor: 'rgba(0,0,0,0.5)' // Semi-transparent overlay
         }
     };
+    */
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -525,16 +510,6 @@ const DiscussionPage = () => {
 
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
-                <IconButton
-                    color="inherit"
-                    aria-label="open drawer"
-                    onClick={handleOpenUserDrawer}
-                    edge="start"
-                    sx={{ mr: 2, ...(channelDrawerOpen && { display: 'none' }) }}
-                >
-                    <MenuIcon />
-                </IconButton>
-
                     <Typography 
                         variant="h6" 
                         noWrap
@@ -590,7 +565,6 @@ const DiscussionPage = () => {
                         flexShrink: 0,
                         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
                     }}
-                    open={channelDrawerOpen}
                 >
                     <Toolbar />
                     <Box height="100vh" sx={{ overflow: 'auto' }}>
