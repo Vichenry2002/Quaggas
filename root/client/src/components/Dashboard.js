@@ -1,488 +1,149 @@
-import './Discussion.css';
-import React, { useEffect } from "react";
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Button from '@mui/material/Button';
-import { ListItemAvatar, Avatar, TextField, Stack, IconButton, Icon } from '@mui/material';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import SendIcon from '@mui/icons-material/Send';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import PushPinIcon from '@mui/icons-material/PushPinRounded';
-import SearchIcon from '@mui/icons-material/Search';
-import CustomDialog from './dialogComponents';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { useParams } from 'react-router-dom';
+import Modal from 'react-modal'; // Import Modal from 'react-modal'
+import DiscussionsPopUp from './CreateDiscussion'; // Import your DiscussionsPopUp component
+import './Dashboard.css';
+import AddUser from './AddUser';
+import AddChannel from './AddChannel';
 
+Modal.setAppElement('#root'); // Set the app element for the modal for accessibility
 
-function getWindowDimensions() {
-    const { innerWidth: width, innerHeight: height } = window;
-    return {
-      width,
-      height
+export default function UserDashboard() {
+    const domainName = 'http://localhost:8081';
+
+    const [isAddUserPopupOpen, setIsAddUserPopupOpen] = useState(false);
+    const [isAddChannelPopupOpen, setIsAddChannelPopupOpen] = useState(false);
+    const [selectedDiscussionId, setSelectedDiscussionId] = useState(null);
+    const [selectedDiscussionTitle, setSelectedDiscussionTitle] = useState(null);
+
+    const handleOpenAddUserPopup = (discussionId, discussionTitle) => {
+        setSelectedDiscussionId(discussionId);
+        setSelectedDiscussionTitle(discussionTitle);
+        setIsAddUserPopupOpen(true);
     };
-}
 
-const drawerWidth = 300; //change this to percent scaling later
-const DiscussionPage = () => {
-    const domainName = 'https://fall2023-comp307-group11.cs.mcgill.ca/api';
-    //default channel is general, always at index 0
-    const [selectedIndex, setSelectedDiscussion] = React.useState(0);
-    const [board, setBoard] = React.useState({title: 'default title', admins: [], users: [], channels: []});
-    const [channel, setChannel] = React.useState([]);
-    const [channelList, setChannelList] = React.useState([]);
-    const [posts, setPosts] = React.useState([]);
-    const [admins, setAdmins] = React.useState([]);
-    const [users, setUsers] = React.useState([])
-    const [open, setOpen] = React.useState(false);
-    const [isAdmin, setIsAdmin] = React.useState(false);
+    const handleOpenAddChannelPopup = (discussionId, discussionTitle) => {
+        setSelectedDiscussionId(discussionId);
+        setSelectedDiscussionTitle(discussionTitle);
+        setIsAddChannelPopupOpen(true);
+    };
 
-    const [newPopupOpen, setNewPopupOpen] = React.useState(false);
 
-    const [popup3Open, setPopup3Open] = React.useState(false);
-    const [currentPopup, setCurrentPopup] = React.useState(null);
-    const [popup3Input1, setPopup3Input1] = React.useState('');
-    const [popup3Input2, setPopup3Input2] = React.useState('');
-    const [commandInput, setcommandInput] = React.useState('');
-
-    const [searchPopup, setSearchPopup] = React.useState(false);
-    const [searchResults, setSearchResults] = React.useState([]);
-
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
-    /*
-    const [permanantDrawers, setPermanantDrawers] = React.useState(false);
-
-    const [channelDrawerOpen, setChannelDrawerOpen] = React.useState(false);
-    const [userDrawerOpen, setUserDrawerOpen] = React.useState(false);
-    */
-    //test constant discussion, to be changed later
-    //const discussionId = "6562539e872555cf4b716d2e";
-    //const userID = "65625388872555cf4b716d2d";
-    const discussionId = useParams().id;
-    const userID = sessionStorage.getItem("username");
+    const [userDiscussions, setUserDiscussions] = useState([]);
+    const [isPopUpOpen, setPopUpOpen] = useState(false); // State for managing the pop-up
+    const userId = sessionStorage.getItem("username"); // Replace with actual user ID (from auth or context)
     const navigate = useNavigate();
 
-    //check user is logged in, if not redirect to landing
-    if (userID === "" || userID === null){
+    if (userId === "" || userId === null){
         setTimeout(() => {
             navigate("/");
         }, 0);
     }
 
-    useEffect(() => {
-        fetchPage();
+    const navigateToDiscussion = (discussionId) => {
+        navigate(`/discussion/${discussionId}`);
+    };
 
-        function handleResize() {
-            const dim = getWindowDimensions()
+    const checkAdminStatus = async (discussionId) => {
+        try {
+            const response = await fetch(domainName+`/discussion/${discussionId}/isAdmin/${userId}`);
+            const isAdminData = await response.json();
 
-            setWindowDimensions(dim);
-
-            /*
-            if (dim.width < 3 * drawerWidth) {
-                setPermanantDrawers(false);
-            } else {
-                setPermanantDrawers(true);
+            if (isAdminData) {
+                return isAdminData.isAdmin;
             }
-            */
+        } catch (error) {
+            console.error("Error checking admin status:", error);
         }
-      
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+    };
+
+    useEffect(() => {
+        fetchUserDiscussions();
     }, []);
 
-    const fetchPage = async () => {
-        const discussion_board = await fetchDiscussionBoard();
-        const admins_list = discussion_board.admins;
-        const users_list = discussion_board.users.filter(x => !discussion_board.admins.includes(x));
-        const channel_list = await fetchChannel(discussion_board.channels)
-        const channel_list_name = fetchChannelnames(channel_list)
-        const posts_list = fetchPosts(channel_list)
-        setChannel(channel_list_name);
-        setChannelList(channel_list);
-        setPosts(posts_list);
-        setAdmins(admins_list);
-        setUsers(users_list);
-
-
-        const userIsAdmin = discussion_board.admins.includes(userID);
-        setIsAdmin(userIsAdmin);
-    };
-    /*
-    const handleOpenUserDrawer = () => {
-        setUserDrawerOpen(true);
-    };
-
-
-    const handleCloseUserDrawer = () => {
-        setUserDrawerOpen(false);
-    };
-
-    const handleOpenChannelDrawer = () => {
-        setChannelDrawerOpen(true);
-    };
-
-    const handleCloseChannelDrawer = () => {
-        setChannelDrawerOpen(false);
-    };
-    */
-
-    const navigateToDashboard = () => {
-        navigate(`/dashboard`);
-    };
-
-    const handleOpen = () => {
-        setOpen(true);
-    };
-    
-    const handleClose = () => {
-        setOpen(false);
-    };
-    
-
-    const handlePopup3Open = () => {
-        setPopup3Open(true);
-    };
-
-    const handlePopup3Close = () => {
-        setPopup3Open(false);
-        // Clear input when closing
-        setPopup3Input1('');
-        setPopup3Input2('');
-
-    };
-
-    const handlePopupOpen = (popupNumber) => {
-        setCurrentPopup(popupNumber);
-      };
-      
-      const handlePopupClose = () => {
-        setCurrentPopup(null);
-        setcommandInput('');
-
-        // Optionally, you can clear input or perform other actions
-      };
-
-      const handleNewPopupOpen = () => {
-        setNewPopupOpen(true);
-    };
-
-    const handleNewPopupClose = () => {
-        setNewPopupOpen(false);
-        // Optionally, you can clear input or perform other actions
-    };
-
-    const handleSearchClose = () => {
-        setSearchPopup(false);
-        // Optionally, you can clear input or perform other actions
-    };
-    
-    const handlePopup3Submit = async () => {
+    const fetchUserDiscussions = async () => {
         try {
-            // Check if popup3Input1 is already in channel_list_name
-            if (!channel.includes(popup3Input1)) {
-                alert(`Channel ${popup3Input1} doesn't exist in the list.`);
+            const response = await fetch(domainName+`/user/${userId}/discussions`);
+            const userData = await response.json();
+            
+            if (userData && Array.isArray(userData)) {
+                // Fetch the admin status for each discussion
+                const discussionsWithAdminStatus = await Promise.all(
+                    userData.map(async (discussion) => {
+                        const isAdmin = await checkAdminStatus(discussion.discussionId);
+                        return { ...discussion, isAdmin };
+                    })
+                );
+                setUserDiscussions(discussionsWithAdminStatus);
+                console.log(discussionsWithAdminStatus);
             } else {
-                // Send a request to add a channel to the discussion board
-                const index = channel.indexOf(popup3Input1);
-                const channel_id = board.channels[index]
-                await fetch(domainName+`discussions/${channel_id}/${popup3Input2}/renameChannel`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-    
-                // Clear input after submission
-                setPopup3Input1('');
-                setPopup3Input2('');
-                // Close the popup
-                setPopup3Open(false);
-            }
-            fetchPage();
-
-        } catch (error) {
-            console.error("Error while adding channel:", error);
-            // Handle the error as needed
-        }
-    };
-
-    const fetchDiscussionBoard = async () => {
-        try {
-            const response = await fetch(domainName+`discussions/${discussionId}`);
-            const boardData = await response.json();
-            if (boardData) {
-                setBoard(boardData)
-                return boardData
-            } else {
-                console.error("Invalid or no data for discussion");
+                console.error("Invalid or no data for user discussions");
+                setUserDiscussions([]);
             }
         } catch (error) {
-            console.error("Error fetching discussion:", error);
+            console.error("Error fetching user discussions:", error);
         }
     };
 
-    const fetchChannel = async (channel_id_list) => {
+    const handleLeaveDiscussion = async (discussionId) => {
+        console.log("Leave discussion", discussionId);
         try {
-          const channelDataList = [];
-      
-          for (const channel_id of channel_id_list) {
-            const response = await fetch(domainName+`channels/${channel_id}`);
-            const channelData = await response.json();
-            channelDataList.push(channelData);
-          }
-      
-          return channelDataList
-      
-        } catch (error) {
-          console.error("Error fetching channels:", error);
-        }
-    };
-    const fetchChannelnames = (channel_list) => {
-        const channelDataList = [];
     
-        for (const channel of channel_list) {
-        channelDataList.push(channel.channel.name);
-        }
-    
-        return channelDataList
-      
-    };
-    const fetchPosts = (channel_list) => {
-        const postDataList = [];
-    
-        for (const channel of channel_list) {
-            postDataList.push(channel.posts);
-        }
-
-        return postDataList
-    };
-
-    //changes the selected discussion page 
-    const discussionPageClick = (event , index) => {
-        setSelectedDiscussion(index);
-    };
-
-    const handlePostClick = (event, index) => {
-        setAnchorEl({[index]: event.currentTarget});
-    };
-
-    const handlePostClose = () => {
-        setAnchorEl(null);
-    };
-
-    const handlePostPin = async (event, index) => {
-        const post = posts[selectedIndex][index];
-        post.pinned = true;
-        const post_id = post._id;
-
-        // console.log(post.content);
-
-        await fetch(domainName+`posts/${post_id}/pin`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        handlePostClose();
-    }
-
-    const handlePostUnPin = async (event, index) => {
-        const post = posts[selectedIndex][index];
-        post.pinned = false;
-        const post_id = post._id;
-
-        // console.log(post.content);
-
-        await fetch(domainName+`posts/${post_id}/unpin`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        handlePostClose();
-    }
-
-    const handlePostDelete = async (event, index) => {
-        const post = posts[selectedIndex][index];
-        const post_id = post._id;
-        const channel_id = channelList[selectedIndex].channel._id;
-
-        posts[selectedIndex].splice(index, 1);
-
-        await fetch(domainName+`channels/${channel_id}/${post_id}/removePost`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-
-        handlePostClose();
-    }
-
-    const submitHandle = async (inputValue) => {
-        try {
-            switch (inputValue) {
-                case 'Add Channel':
-                    // Check if channel is already in channe list
-                    if (channel.includes(commandInput)) {
-                        alert(`Channel ${commandInput} already exists in the list.`);
-                    } else {
-                        // Send a request to add a channel to the discussion board
-                        await fetch(domainName+`discussions/${discussionId}/${commandInput}/addChannel`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                    }
-                    fetchPage();
-
-                    break;
-                case 'Remove Channel':
-                    // Check if command is not in channel
-                    if (!channel.includes(commandInput)) {
-                        alert(`Channel ${commandInput} doesn't exist in the list.`);
-                    } else {
-                        // Send a request to remove a channel from the discussion board
-                        const index = channel.indexOf(commandInput);
-                        const channel_id = board.channels[index];
-                        // console.log(channel_id);
-                        await fetch(domainName+`discussions/${discussionId}/${channel_id}/removeChannel`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                    }
-                    fetchPage();
-
-                    break;
-                case 'Add User':
-                    // Check if commandInput is already in user list
-                    if (users.includes(commandInput)) {
-                        alert(`User ${commandInput} exist in the list.`);
-                    } else {
-                        await fetch(domainName+`discussions/${discussionId}/${commandInput}/${board.title}/addUser`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                    }
-                    fetchPage();
-
-                    break;
-                case 'Remove User':
-                    // Check if commandInput is not in user list
-                    if (!users.includes(commandInput)) {
-                        alert(`User ${commandInput} doesn't exist in the list.`);
-                    } else {
-                        // Send a request to remove a user from the discussion board
-                        await fetch(domainName+`discussions/${discussionId}/${commandInput}/removeUser`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                    }
-                    fetchPage();
-
-                    break;
-                default:
-                    console.error('Invalid Command');
-                    return;
-            }
-    
-        } catch (error) {
-            console.error(`Error while ${inputValue}:`, error);
-        }
-    };
-
-    function stringToColor(string) {
-        let hash = 0;
-        let i;
-      
-        /* eslint-disable no-bitwise */
-        for (i = 0; i < string.length; i += 1) {
-          hash = string.charCodeAt(i) + ((hash << 5) - hash);
-        }
-      
-        let color = '#';
-      
-        for (i = 0; i < 3; i += 1) {
-          const value = (hash >> (i * 8)) & 0xff;
-          color += `00${value.toString(16)}`.slice(-2);
-        }
-        /* eslint-enable no-bitwise */
-      
-        return {
-            sx: {
-              bgcolor: color,
-            },
-          };
-    }
-
-    const handleSendMessage = async () => {
-        const message = document.getElementById('send-message');
-
-        if (message.value) {
-            await fetch(domainName+`channels/${board.channels[selectedIndex]}/${userID}/${message.value}/addPost`, {
+            //delete from user list of discussions
+            await fetch(domainName+`/user/${userId}/${discussionId}/remove`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
             });
-
-            // console.log(message.value);
-            fetchPage();
-            
-            message.value = '';
-        }
-    };
-
-    const handleSearch = () => {
-        const search = document.getElementById('search-message');
-        var found = [];
-
-        if (search.value) {
-            const channel_posts = posts[selectedIndex];
-            // console.log(search.value);
-
-            channel_posts.forEach((post) => {
-                if (post.content.includes(search.value)) {
-                    found.push(post);
-                }
+    
+            //delete from discussion list of users
+            await fetch(domainName+`/discussion/${discussionId}/${userId}/remove`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
             });
-
-            setSearchResults(found);
-            setSearchPopup(true);
-
-            //console.log(found);
-
-            search.value = '';
+    
+            // Update the local state to reflect the change
+            deleteDiscussion(discussionId);
+        } catch (error) {
+            console.error("Error leaving discussion:", error);
         }
     };
+    
+    const handleLogout = () => {
+        sessionStorage.setItem("username", "");
+        navigate("/");
+    };
 
-    /*
+    const togglePopUp = () => {
+        setPopUpOpen(!isPopUpOpen);
+    };
+
+    const addNewDiscussion = (newDiscussion) => {
+        console.log("Adding new discussion:", newDiscussion);
+        
+        try {
+            // Check if the current user is an admin for the newly added discussion
+            const isAdmin = checkAdminStatus(newDiscussion.discussionId);
+    
+            // Update the state immediately with the new discussion and its isAdmin property
+            setUserDiscussions((prevDiscussions) => [
+                ...prevDiscussions,
+                { ...newDiscussion, isAdmin },
+            ]);
+        } catch (error) {
+            console.error("Error checking admin status:", error);
+        }
+    };
+    
+
+
+    const deleteDiscussion = (discussionId) => {
+        setUserDiscussions(prevDiscussions => prevDiscussions.filter(discussion => discussion.discussionId !== discussionId));
+    };
+
     const customStyles = {
         content: {
             top: '50%',
@@ -502,383 +163,93 @@ const DiscussionPage = () => {
             backgroundColor: 'rgba(0,0,0,0.5)' // Semi-transparent overlay
         }
     };
-    */
+    
 
     return (
-        <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
+        <div className="dashboard-container">
+             <div className="user-info">
+                <span className="username">{userId}</span>
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
+            </div>
+            <div className="dashboard-header">
+                <h1 className="dashboard-title">Welcome to your Dashboard</h1>
+                <button className="create-button" onClick={togglePopUp}>Create</button>
+            </div>
 
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-                <Toolbar>
-                    <Typography 
-                        variant="h6" 
-                        noWrap
-                        component="div"  
-                        sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block'}}}
+            <ul className="discussion-list">
+                {userDiscussions && userDiscussions.map((discussion, index) => (
+                    <li 
+                        key={index} 
+                        className="discussion-item" 
+                        onClick={() => navigateToDiscussion(discussion.discussionId)}
+                        // Add any required styling here to make it look clickable
+                        style={{ cursor: 'pointer' }} 
                     >
-                        {board.title}
-                    </Typography>
-
-                    <div 
-                        className="search-bar-features"
-                    >   
-                        <IconButton
-                            sx={{
-                                paddingTop: '1.3vh',
-                                paddingRight: '1vw'
-                            }}
-                            onClick={handleNewPopupOpen}
-                        >
-                            <PushPinIcon />
-                        </IconButton>
-
-                        <TextField 
-                            id="search-message" 
-                            label="Search"
-                            variant="outlined"
-                            sx={{
-                                position: 'relative',
-                                backgroundColor: 'white',
-                                marginLeft: 0,
-                                borderRadius: '5px'
-                            }}
-                        /> 
-
-                        <IconButton
-                            onClick={handleSearch}
-                            sx={{
-                                paddingTop: '1.3vh',
-                                paddingLeft: '1vw'
-                            }}
-                        >
-                            <SearchIcon />
-                        </IconButton>
-                    </div>
-                </Toolbar>
-            </AppBar>
-
-                <Drawer
-                    variant="permanent"
-                    sx={{
-                        width: drawerWidth,
-                        height: '100vh',
-                        flexShrink: 0,
-                        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
-                    }}
-                >
-                    <Toolbar />
-                    <Box height="100vh" sx={{ overflow: 'auto' }}>
-                    <List>
-                        {channel.map((channelName, index) => (
-                            <ListItemButton 
-                            key={index}
-                            disablepadding
-                            selected={selectedIndex === index}
-                            onClick={(event) => discussionPageClick(event, index)}
-                            >
-                            {channelName}
-                            </ListItemButton>
-                        ))}
-                    </List>
-                    <Divider />
-
-                        <Stack
-                            spacing={0}
-                            sx={{
-                                position: 'absolute',
-                                bottom: 0
-                            }}
-                        >
-                            {isAdmin && (
-                                <ListItem>
-                                    <IconButton
-                                        onClick={handleOpen}
-                                    >
-                                        <SettingsIcon>
-
-                                        </SettingsIcon>
-
-                                        <ListItemText
-                                            style={{paddingLeft: '1vw'}}
-                                        >
-                                            Settings         
-                                        </ListItemText>
-
-                                    </IconButton>
-                                </ListItem>
-                                )}
-
-                                <ListItem>
-                                <IconButton
-                                    onClick={navigateToDashboard}
-                                >
-                                    <ExitToAppIcon
-                                        style={{ color: 'red'}}
-                                    >
-
-                                    </ExitToAppIcon>
-
-                                    <ListItemText
-                                        style={{color: 'red', paddingLeft: '1vw'}}
-                                    >
-                                        Exit         
-                                    </ListItemText>
-                                </IconButton>
-                            </ListItem>
-                        </Stack>
-                    
-                        <Dialog open={open} onClose={handleClose}>
-                        <DialogTitle>Admin Controls</DialogTitle>
-                        <DialogContent>
-                        <Stack spacing={2}>
-                            <Button variant="contained" onClick={() => handlePopupOpen('Add Channel')}>
-                            Add Channel
-                            </Button>
-                            <Button variant="contained" onClick={() => handlePopupOpen('Remove Channel')}>
-                            Remove Channel
-                            </Button>
-                            <Button variant="contained" onClick={handlePopup3Open}>
-                            Rename Channel
-                            </Button>
-                            <Button variant="contained" onClick={() => handlePopupOpen('Add User')}>
-                            Add User
-                            </Button>
-                            <Button variant="contained" onClick={() => handlePopupOpen('Remove User')}>
-                            Remove User
-                            </Button>
-                        </Stack>
-                        </DialogContent>
-                        <DialogActions>
-                        <Button onClick={handleClose} variant="contained">
-                            Close
-                        </Button>
-                        </DialogActions>
-                    </Dialog>
-
-                    <Dialog open={popup3Open} onClose={handlePopup3Close}>
-                        <DialogTitle>Rename Channel</DialogTitle>
-                        <DialogContent>
-                            <TextField
-                                label="Channel Name"
-                                variant="outlined"
-                                value={popup3Input1}
-                                onChange={(e) => setPopup3Input1(e.target.value)}
-                            />
-                            <TextField
-                                label="New Channel Name"
-                                variant="outlined"
-                                value={popup3Input2}
-                                onChange={(e) => setPopup3Input2(e.target.value)}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handlePopup3Submit} variant="contained" color="primary">
-                                Submit
-                            </Button>
-                            <Button onClick={handlePopup3Close} variant="contained">
-                                Close
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-
-                    {currentPopup !== null && (
-                    <CustomDialog
-                        open={currentPopup !== null}  // Update this line
-                        handleClose={handlePopupClose}
-                        handleSubmit={() => submitHandle(currentPopup)}
-                        title={currentPopup}
-                        inputLabel="Enter Input"
-                        inputValue={commandInput}
-                        handleInputChange={setcommandInput}
-                    />
-                    )}
-
-                    <Dialog open={newPopupOpen} onClose={handleNewPopupClose}>
-                        <DialogTitle>Pinned messages</DialogTitle>
-                        <DialogContent>
-                            <Stack spacing={0}>
-                                {posts[selectedIndex] &&
-                                    posts[selectedIndex].filter((post) => post.pinned).map((post, index) => (
-                                        <div key={index}>
-                                            <ListItem alignItems="flex-start">
-                                                <ListItemAvatar>
-                                                    <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
-                                                </ListItemAvatar>
-                                                <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
-                                            </ListItem>
-                                            <Divider />
-                                        </div>
-                                    ))}
-                            </Stack>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleNewPopupClose} variant="contained">
-                                Close
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-
-                    <Dialog open={searchPopup} onClose={handleSearchClose}>
-                        <DialogTitle>Search Results</DialogTitle>
-                        <DialogContent>
-                            <Stack spacing={0}>
-                                {searchResults && searchResults.map((post, index) => (
-                                    <div key={index}>
-                                        <ListItem alignItems="flex-start">
-                                        <ListItemAvatar>
-                                            <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
-                                        </ListItemAvatar>
-                                        <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
-                                    </ListItem>
-                                    <Divider />
-                                    </div>
-                                ))}
-                            </Stack>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleSearchClose} variant="contained">
-                                Close
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-
-
-                    </Box>
-                </Drawer>
-            <Box 
-                component="main"
-                fullwidth
-                sx={{ flexGrow: 1, p: 3, height: "100vh", overflow: "hidden"}}
-            >
-                <Toolbar />
-                
-                <Stack spacing={0}>
-                    {posts[selectedIndex] && posts[selectedIndex].map((post, index) => (
+                        <span>{discussion.title}</span>
                         <div>
-                            <ListItem 
-                                alignItems="flex-start"
-                                key = {index}
+                            <button
+                                className={`button ${!discussion.isAdmin ? 'disabled-button' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenAddUserPopup(discussion.discussionId, discussion.title);
+                                }}
+                                disabled={!discussion.isAdmin}
                             >
-                                <ListItemAvatar>
-                                    <Avatar {...stringToColor(post.user_id)}>{post.user_id.charAt(0)}</Avatar>
-                                </ListItemAvatar>
-
-                                <ListItemText primary={post.user_id} secondary={post.content}></ListItemText>
-                                <IconButton
-                                    sx={{paddingLeft: "2%", paddingTop: "1%"}}
-                                    onClick={event => {
-                                        handlePostClick(event, index);
-                                    }}
-                                >
-                                    <MoreVertIcon></MoreVertIcon>
-                                </IconButton>
-                                <Menu
-                                    id="post-menu"
-                                    anchorEl={anchorEl && anchorEl[index]}
-                                    open={
-                                        Boolean(anchorEl && anchorEl[index])
-                                    }
-                                    key={index}
-                                    onClose={handlePostClose}
-                                    MenuListProps={{
-                                    'aria-labelledby': 'basic-button',
-                                    }}
-                                >
-                                    <MenuItem key={index}pin onClick={(event) => handlePostPin(event, index)}>Pin Post</MenuItem>
-                                    <MenuItem key={index}unpin onClick={(event) => handlePostUnPin(event, index)}>Unpin Post</MenuItem>
-                                    <MenuItem key={index}del onClick={(event) => handlePostDelete(event, index)}>Delete Post</MenuItem>
-                                </Menu>
-                            </ListItem>
-                            <Divider />
+                                Add User
+                            </button>
+                            <button
+                                className={`button ${!discussion.isAdmin ? 'disabled-button' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenAddChannelPopup(discussion.discussionId, discussion.title);
+                                }}
+                                disabled={!discussion.isAdmin}
+                            >
+                                Add Channel
+                            </button>
+                            <button className="button" onClick={(e) => {
+                                e.stopPropagation(); // Prevents click from bubbling up to the li element
+                                handleLeaveDiscussion(discussion.discussionId);
+                            }}>Leave</button>
                         </div>
-                    ))}
-                </Stack>
-
-                <Box
-                    sx={{
-                        position: "absolute", 
-                        bottom: 0, 
-                        boxSizing: "border-box", 
-                        width: windowDimensions.width - 2 * drawerWidth - 20, 
-                        paddingBottom: "2vh", 
-                        // border: "1px solid red"
-                    }}
-                >
-                    <TextField 
-                        id="send-message" 
-                        label="Send a message" 
-                        variant="outlined" 
-                        sx={{
-                            width: windowDimensions.width - 2 * drawerWidth - 100
-                        }}
-                    />    
-
-                    <IconButton
-                        sx={{paddingLeft: "2%", paddingTop: "1%"}}
-                        onClick={handleSendMessage}
-                    >
-                        <SendIcon></SendIcon>
-                    </IconButton>
-                    
-                </Box>
-            </Box>
-            <Drawer
-                sx={{
-                width: drawerWidth,
-                height: '100vh',
-                flexShrink: 0,
-                '& .MuiDrawer-paper': {
-                    width: drawerWidth,
-                    boxSizing: 'border-box',
-                },
-                }}
-                variant="permanent"
-                anchor="right"
+                    </li>
+                ))}
+            </ul>
+            
+            <Modal
+                isOpen={isPopUpOpen}
+                onRequestClose={togglePopUp}
+                style={customStyles}
+                // Style your modal here or in the CSS file
             >
-                <Toolbar />
-                <Divider />
-                <List>
-                    {admins && admins.map((admin, index) => (
-                        <ListItem 
-                            alignItems="flex-start"
-                            key = {index}
-                        >
-                        <ListItemAvatar>
-                            <Avatar {...stringToColor(admin)}>{admin.charAt(0)}</Avatar>
-                        </ListItemAvatar>
-                        <ListItemText primary={admin} secondary='Admin'></ListItemText>
-                        </ListItem>
-                    ))}
-                </List>
-                    <Divider />
-                    <List>
-                        {users && users.map((user, index) => (
-                            <ListItem 
-                                alignItems="flex-start"
-                                key = {index}
-                            >
-                            <ListItemAvatar>
-                                <Avatar {...stringToColor(user)}>{user.charAt(0)}</Avatar>
-                            </ListItemAvatar>
-                            <ListItemText primary={user} secondary='User'></ListItemText>
-                            </ListItem>
-                        ))}
-                    </List>
+                <DiscussionsPopUp 
+                    isOpen={isPopUpOpen} 
+                    onRequestClose={togglePopUp} 
+                    addNewDiscussion={addNewDiscussion}
+                />
+            </Modal>
+            <Modal
+                isOpen={isAddUserPopupOpen}
+                onRequestClose={() => setIsAddUserPopupOpen(false)}
+                style={customStyles}
+            >
+                <AddUser 
+                    discussionId={selectedDiscussionId}
+                    discussionTitle={selectedDiscussionTitle}
+                />
+            </Modal>
+            <Modal
+                isOpen={isAddChannelPopupOpen}
+                onRequestClose={() => setIsAddChannelPopupOpen(false)}
+                style={customStyles}
+            >
+                <AddChannel
+                    discussionId={selectedDiscussionId}
+                    discussionTitle={selectedDiscussionTitle}
+                />
+            </Modal>
 
-                    <List
-                        sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            right: 0,
-                            paddingRight: '1vw'
-                        }}
-                    >
-                            
-                    </List>
-                    
-                    
-            </Drawer>
-        </Box>
-      );
-};
-export default DiscussionPage;
+            
+        </div>
+    );
+}
