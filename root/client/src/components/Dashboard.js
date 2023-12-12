@@ -9,7 +9,7 @@ import AddChannel from './AddChannel';
 Modal.setAppElement('#root'); // Set the app element for the modal for accessibility
 
 export default function UserDashboard() {
-    const domainName = 'http://localhost:8081';
+    const domainName = 'https://fall2023-comp307-group11.cs.mcgill.ca/api';
 
     const [isAddUserPopupOpen, setIsAddUserPopupOpen] = useState(false);
     const [isAddChannelPopupOpen, setIsAddChannelPopupOpen] = useState(false);
@@ -46,7 +46,7 @@ export default function UserDashboard() {
 
     const checkAdminStatus = async (discussionId) => {
         try {
-            const response = await fetch(domainName+`/discussion/${discussionId}/isAdmin/${userId}`);
+            const response = await fetch(domainName+`discussion/${discussionId}/isAdmin/${userId}`);
             const isAdminData = await response.json();
 
             if (isAdminData) {
@@ -63,7 +63,7 @@ export default function UserDashboard() {
 
     const fetchUserDiscussions = async () => {
         try {
-            const response = await fetch(domainName+`/user/${userId}/discussions`);
+            const response = await fetch(domainName+`user/${userId}/discussions`);
             const userData = await response.json();
             
             if (userData && Array.isArray(userData)) {
@@ -90,7 +90,7 @@ export default function UserDashboard() {
         try {
     
             //delete from user list of discussions
-            await fetch(domainName+`/user/${userId}/${discussionId}/remove`, {
+            await fetch(domainName+`user/${userId}/${discussionId}/remove`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export default function UserDashboard() {
             });
     
             //delete from discussion list of users
-            await fetch(domainName+`/discussion/${discussionId}/${userId}/remove`, {
+            await fetch(domainName+`discussion/${discussionId}/${userId}/remove`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
